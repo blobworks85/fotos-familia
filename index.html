@@ -293,6 +293,7 @@ function crearBuscador(contenedor, idInput, valorInicial, alElegir, permitirDesc
 // ---------- Código ----------
 var codigo = (location.hash || "").replace(/^#/, "") || lee("galeria-codigo");
 if (codigo) guarda("galeria-codigo", codigo);
+$("codigo").value = codigo;
 if (!codigo){ $("paso-codigo").hidden = false; }
 $("codigo").addEventListener("input", function(){ codigo = this.value.trim(); guarda("galeria-codigo", codigo); });
 
@@ -561,10 +562,7 @@ $("enviar").addEventListener("click", function(){
   fetch(WEBHOOK, {method:"POST", body:fd}).then(function(r){ return r.text(); }).then(function(txt){
     var ok = false; try{ ok = JSON.parse(txt).ok === true; }catch(e){ ok = false; }
     if (ok){ listo(datos); return; }
-    if (/accepted/i.test(txt)){
-      throw new Error("No se guardó. Revisa el código de la familia: debe ser el que venía en el mensaje.");
-    }
-    throw new Error("No se pudo guardar. Intenta otra vez en un momento.");
+    throw new Error("No se pudo guardar. Revisa que el código de la familia sea el que venía en el mensaje e intenta otra vez en un momento.");
   }).catch(function(err){
     var msj = err && err.message && err.message.indexOf("No se") === 0 ? err.message :
       "No se pudo enviar. Revisa tu conexión a internet e intenta otra vez.";
