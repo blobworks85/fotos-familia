@@ -1,0 +1,443 @@
+<title>Árbol Fuentes Siller</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=Source+Sans+3:wght@400;500;600&display=swap">
+<style>
+/* Layout: barra superior + lienzo con zoom y arrastre + panel lateral (hoja inferior en celular).
+   Lado Fuentes = óxido; lado Siller = verde salvia. */
+:root{
+  --bg:#F7F7F4; --surface:#FFFFFF; --ink:#1C2230; --muted:#4B5262; --line:#8A8F98; --hair:#E2E3E0;
+  --fue:#A4511B; --fue-soft:#F8ECE3; --sil:#2F6B55; --sil-soft:#E5F0EA;
+  --ph-bg:#EFEFEB; --ph-ink:#5E5E5E; --warn-bg:#FFF4D6; --warn-ink:#6B4F00;
+  --root-bg:#1C2230; --root-ink:#FFFFFF; --ring:#E0A100; --err:#A3361B;
+  --f-display:'Source Serif 4', Georgia, 'Times New Roman', serif;
+  --f-body:'Source Sans 3', 'Segoe UI', system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#14171C; --surface:#1D222A; --ink:#ECEEF2; --muted:#AEB4BF; --line:#6E7480; --hair:#2E343E;
+  --fue:#E7A273; --fue-soft:#33251C; --sil:#86C7AC; --sil-soft:#1C2E27;
+  --ph-bg:#22262D; --ph-ink:#A3A7AE; --warn-bg:#3A3018; --warn-ink:#F3D98A;
+  --root-bg:#ECEEF2; --root-ink:#14171C; --ring:#F2C14E; --err:#F0957A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#14171C; --surface:#1D222A; --ink:#ECEEF2; --muted:#AEB4BF; --line:#6E7480; --hair:#2E343E;
+  --fue:#E7A273; --fue-soft:#33251C; --sil:#86C7AC; --sil-soft:#1C2E27;
+  --ph-bg:#22262D; --ph-ink:#A3A7AE; --warn-bg:#3A3018; --warn-ink:#F3D98A;
+  --root-bg:#ECEEF2; --root-ink:#14171C; --ring:#F2C14E; --err:#F0957A; color-scheme:dark }
+
+[hidden]{display:none!important}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;overflow:hidden}
+button,input{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--ring);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.app{height:100%;display:flex;flex-direction:column}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding-block:10px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  background:var(--surface);border-bottom:1px solid var(--hair);position:relative;z-index:5}
+.bar h1{margin:0;font-family:var(--f-display);font-size:20px;font-weight:600;text-wrap:balance;margin-right:auto}
+.search{position:relative;flex:1 1 220px;max-width:320px}
+.search input{width:100%;box-sizing:border-box;min-height:40px;padding:8px 12px;border:1px solid var(--hair);border-radius:8px;background:var(--bg)}
+.results{position:absolute;top:44px;left:0;right:0;background:var(--surface);border:1px solid var(--hair);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12);list-style:none;margin:0;padding:4px;z-index:20;max-height:320px;overflow-y:auto}
+.results button{display:block;width:100%;text-align:left;padding:8px 10px;border:0;background:none;border-radius:6px;cursor:pointer}
+.results button:hover,.results button:focus-visible{background:var(--bg)}
+.results small{color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--hair);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--surface);padding:8px 12px;min-height:40px;cursor:pointer;font-size:14px}
+.seg button+button{border-left:1px solid var(--hair)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:600}
+.zoom{display:inline-flex;gap:6px}
+.zoom button{padding:0 10px;min-width:40px;min-height:40px;border:1px solid var(--hair);border-radius:8px;background:var(--surface);cursor:pointer;font-size:15px}
+
+.stage{position:relative;flex:1;min-height:0;display:flex}
+.viewport{position:relative;flex:1;overflow:hidden;cursor:grab;touch-action:none}
+.viewport.dragging{cursor:grabbing}
+.world{position:absolute;left:0;top:0;transform-origin:0 0}
+.world.anim{transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+@media (prefers-reduced-motion: reduce){.world.anim{transition:none}}
+.world svg{position:absolute;left:0;top:0;overflow:visible}
+.world svg line{stroke:var(--line);stroke-width:2;stroke-linecap:round}
+.world svg line.dash{stroke-dasharray:6 6}
+.world svg line.couple{stroke:var(--ink);stroke-width:3}
+.genlbl{position:absolute;width:150px;font-size:13px;line-height:19px;color:var(--muted)}
+.genlbl b{display:block;color:var(--ink);font-size:14px}
+.below{position:absolute;text-align:center;font-size:13px;line-height:19px;color:var(--muted);border:2px dashed var(--line);border-radius:10px;padding:10px 14px;box-sizing:border-box;background:var(--surface)}
+
+.node{position:absolute;width:176px;height:132px;transition:opacity .2s}
+.node.dim{opacity:.22}
+.card{position:relative;width:176px;height:132px;box-sizing:border-box;padding:8px 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;text-align:center;
+  background:var(--surface);border:2px solid var(--line);border-radius:10px;cursor:pointer;transition:opacity .2s, box-shadow .2s}
+.card:hover{box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.card .nm{font-family:var(--f-display);font-weight:600;font-size:15px;line-height:19px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.card .yr{font-size:13px;line-height:18px;color:var(--muted);font-variant-numeric:tabular-nums}
+.card .pl{font-size:12px;line-height:16px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card .st{font-size:11px;line-height:16px;font-weight:600;letter-spacing:.02em;margin-top:2px}
+.card.fue{border-color:var(--fue)} .card.fue .st{color:var(--fue)}
+.card.sil{border-color:var(--sil)} .card.sil .st{color:var(--sil)}
+.card.ver{border-style:dashed}
+.card.ph{background:var(--ph-bg);border:2px dashed var(--line);color:var(--ph-ink)}
+.card.ph .nm,.card.ph .st{color:var(--ph-ink)}
+.card.root{background:var(--root-bg);border-color:var(--root-bg);color:var(--root-ink)}
+.card.root .yr,.card.root .pl,.card.root .st{color:var(--root-ink);opacity:.85}
+.card.sel{box-shadow:0 0 0 4px var(--ring)}
+.exp{position:absolute;left:50%;top:-16px;transform:translateX(-50%);z-index:2;font-size:12.5px;font-weight:600;padding:4px 12px;min-height:30px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.exp::before{content:"\25B2  "}
+.exp.open::before{content:"\25BC  "}
+.node.fue .exp{border-color:var(--fue);color:var(--fue)} .node.sil .exp{border-color:var(--sil);color:var(--sil)}
+.exp:hover{background:var(--bg)}
+.hint{position:absolute;top:14px;left:50%;transform:translateX(-50%);max-width:calc(100% - 32px);box-sizing:border-box;background:var(--ink);color:var(--bg);font-size:14px;line-height:20px;padding:8px 14px;border-radius:999px;text-align:center;z-index:4;pointer-events:none}
+
+.legend{position:absolute;left:max(12px,env(safe-area-inset-left,0px));bottom:12px;display:flex;flex-wrap:wrap;gap:6px 16px;max-width:calc(100% - 24px);
+  background:var(--surface);border:1px solid var(--hair);border-radius:10px;padding:8px 12px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:22px;height:14px;box-sizing:border-box;border:2px solid var(--muted);border-radius:3px}
+.sw.d{border-style:dashed}.sw.g{border-style:dashed;background:var(--ph-bg)}
+.sw.f{background:var(--fue);border-color:var(--fue);width:14px}.sw.s{background:var(--sil);border-color:var(--sil);width:14px}
+.sw.l{width:22px;height:0;border:0;border-top:2px dashed var(--line);border-radius:0}
+
+.panel{width:390px;flex:none;background:var(--surface);border-left:1px solid var(--hair);overflow-y:auto;box-sizing:border-box;padding:20px 22px 28px;
+  padding-right:max(22px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+.p-head{display:flex;align-items:flex-start;gap:10px}
+.p-head h2{margin:0;font-family:var(--f-display);font-size:26px;line-height:32px;font-weight:600;text-wrap:balance;flex:1}
+.close{min-width:40px;min-height:40px;border:1px solid var(--hair);border-radius:8px;background:var(--surface);cursor:pointer;font-size:18px;line-height:1}
+.alias{margin:4px 0 0;color:var(--muted);font-size:14px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--bg);color:var(--muted)}
+.chip.fue{background:var(--fue-soft);color:var(--fue)} .chip.sil{background:var(--sil-soft);color:var(--sil)}
+.chip.ok{background:var(--sil-soft);color:var(--ink)} .chip.ver{background:var(--warn-bg);color:var(--warn-ink)}
+.sec h3{margin:0 0 8px;font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+dl.data{display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;margin:0;font-size:14.5px}
+dl.data dt{color:var(--muted)} dl.data dd{margin:0}
+.rel{display:flex;flex-direction:column;gap:6px}
+.rel-row{display:flex;gap:10px;align-items:baseline;font-size:14px}
+.rel-row>span{width:58px;flex:none;color:var(--muted)}
+.rel-row div{display:flex;flex-wrap:wrap;gap:6px}
+.link{border:1px solid var(--hair);background:var(--bg);border-radius:999px;padding:4px 10px;cursor:pointer;font-size:13.5px;text-align:left}
+.link:hover{border-color:var(--line)}
+.story{border-top:1px solid var(--hair);padding-top:12px;display:flex;flex-direction:column;gap:4px}
+.story:first-of-type{border-top:0;padding-top:0}
+.story .kind{font-size:11.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.story h4{margin:0;font-family:var(--f-display);font-size:17px;line-height:23px;font-weight:600}
+.story p{margin:0;font-size:14.5px;line-height:22px}
+.story small{color:var(--muted);font-size:12.5px}
+.empty{color:var(--muted);font-size:14px;margin:0;line-height:21px}
+.srcs{margin:0;padding-left:18px;font-size:14px;line-height:22px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.btn{min-height:44px;padding:10px 14px;border-radius:8px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);font-weight:600;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.note{font-size:12.5px;color:var(--muted);margin:0;line-height:18px}
+
+.gate{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;align-items:center;justify-content:center;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:24px}
+.gate form{width:100%;max-width:380px;display:flex;flex-direction:column;gap:14px}
+.gate h2{margin:0;font-family:var(--f-display);font-size:30px;line-height:36px;font-weight:600;text-wrap:balance}
+.gate p{margin:0;color:var(--muted);line-height:22px}
+.gate label{font-weight:600;font-size:14px}
+.gate input[type=password]{min-height:44px;padding:8px 12px;border:1px solid var(--hair);border-radius:8px;background:var(--surface);box-sizing:border-box;width:100%}
+.gate .remember{display:flex;gap:8px;align-items:center;font-weight:400;font-size:14px;color:var(--muted)}
+.gate .remember input{width:18px;height:18px}
+.gate .err{color:var(--err);font-size:14px}
+
+@media (max-width:760px){
+  .panel{position:absolute;left:0;right:0;bottom:0;width:auto;max-height:64%;border-left:0;border-top:1px solid var(--hair);border-radius:14px 14px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.18);z-index:8;
+    padding-left:max(18px,env(safe-area-inset-left,0px));padding-right:max(18px,env(safe-area-inset-right,0px));padding-bottom:calc(24px + env(safe-area-inset-bottom,0px))}
+  .legend{display:none}
+  .bar h1{font-size:18px}
+}
+</style>
+
+<div class="app" id="app" hidden>
+  <header class="bar">
+    <h1 id="titulo">Familia Fuentes Siller</h1>
+    <div class="search">
+      <label for="q" class="sr">Buscar persona</label>
+      <input id="q" type="search" placeholder="Buscar persona…" autocomplete="off">
+      <ul class="results" id="results" hidden></ul>
+    </div>
+    <div class="seg" role="group" aria-label="Mostrar lado">
+      <button type="button" data-f="all" aria-pressed="true">Todos</button>
+      <button type="button" data-f="fue" aria-pressed="false">Lado Fuentes</button>
+      <button type="button" data-f="sil" aria-pressed="false">Lado Siller</button>
+    </div>
+    <div class="zoom">
+      <button type="button" id="zout" aria-label="Alejar">−</button>
+      <button type="button" id="zin" aria-label="Acercar">+</button>
+      <button type="button" id="zfit">Ajustar</button>
+      <button type="button" id="zreset">Empezar de nuevo</button>
+    </div>
+  </header>
+  <div class="stage">
+    <div class="viewport" id="vp">
+      <div class="world" id="world"></div>
+      <div class="hint" id="hint">Toca «Ver padres» en una tarjeta para conocer a la generación anterior</div>
+      <div class="legend" aria-label="Leyenda">
+        <span><i class="sw"></i>Confirmado</span>
+        <span><i class="sw d"></i>Por verificar</span>
+        <span><i class="sw g"></i>Sin datos</span>
+        <span><i class="sw l"></i>Parentesco por confirmar</span>
+        <span><i class="sw f"></i>Lado Fuentes</span>
+        <span><i class="sw s"></i>Lado Siller</span>
+      </div>
+    </div>
+    <aside class="panel" id="panel" hidden aria-live="polite"></aside>
+  </div>
+</div>
+
+<div class="gate" id="gate">
+  <form id="gateForm">
+    <h2>Árbol de la familia Fuentes Siller</h2>
+    <p>Este árbol es privado. Escribe la contraseña familiar para entrar.</p>
+    <label for="pw">Contraseña</label>
+    <input id="pw" type="password" autocomplete="current-password" required>
+    <label class="remember"><input type="checkbox" id="rem"> Recordarla en este dispositivo</label>
+    <span class="err" id="pwErr" hidden></span>
+    <button class="btn" type="submit" id="go">Entrar</button>
+  </form>
+</div>
+
+<script>
+const PAYLOAD = __PAYLOAD__;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm=s=>String(s).normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+const b64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+
+async function decrypt(pw){
+  const keyMat=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+  const key=await crypto.subtle.deriveKey({name:'PBKDF2',salt:b64(PAYLOAD.salt),iterations:PAYLOAD.iter,hash:'SHA-256'},keyMat,{name:'AES-GCM',length:256},false,['decrypt']);
+  const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:b64(PAYLOAD.iv)},key,b64(PAYLOAD.ct));
+  return JSON.parse(new TextDecoder().decode(plain));
+}
+
+/* ---------- acceso ---------- */
+const gate=document.getElementById('gate'), pwErr=document.getElementById('pwErr');
+async function unlock(pw,remember){
+  try{
+    const data=await decrypt(pw);
+    if(remember){try{localStorage.setItem('arbol-fs-pw',pw)}catch(_){}}
+    gate.hidden=true; document.getElementById('app').hidden=false; start(data);
+    return true;
+  }catch(e){return false}
+}
+document.getElementById('gateForm').addEventListener('submit',async e=>{
+  e.preventDefault(); const go=document.getElementById('go'); go.disabled=true; go.textContent='Abriendo…'; pwErr.hidden=true;
+  const ok=await unlock(document.getElementById('pw').value.trim(),document.getElementById('rem').checked);
+  go.disabled=false; go.textContent='Entrar';
+  if(!ok){pwErr.textContent='Esa contraseña no es correcta. Revísala e intenta de nuevo.';pwErr.hidden=false}
+});
+(async()=>{let saved=null;try{saved=localStorage.getItem('arbol-fs-pw')}catch(_){}
+  if(saved&&!(await unlock(saved,false))){try{localStorage.removeItem('arbol-fs-pw')}catch(_){}}})();
+
+/* ---------- árbol ---------- */
+function start(D){
+  const P=D.personas, ROOTS=D.raices;
+  document.getElementById('titulo').textContent=D.titulo;
+  const GEN=D.etiquetas;
+  const CW=176, CH=132, SLOT=200, ROWH=210, PADL=190, PADT=40, BELOW=D.niveles_abajo===0?120:0;
+
+  /* lado de cada persona y caminos */
+  const side={}, childInTree={};
+  function mark(id,s){if(!id||!P[id]||side[id])return;side[id]=s;(P[id].padres||[]).forEach(p=>{if(P[p]&&!(p in childInTree))childInTree[p]=id;mark(p,s)})}
+  mark(ROOTS[0],'fue'); mark(ROOTS[1],'sil');
+  const kids={}; Object.entries(P).forEach(([id,p])=>(p.padres||[]).forEach(pid=>{if(pid&&P[pid])(kids[pid]=kids[pid]||[]).push(id)}));
+  function partners(id){const s=new Set(P[id].pareja||[]);(kids[id]||[]).forEach(k=>(P[k].padres||[]).forEach(x=>{if(x&&x!==id)s.add(x)}));return[...s].filter(x=>P[x])}
+  const hasParents=id=>(P[id].padres||[]).some(x=>P[x]);
+  const expanded=new Set();
+
+  const world=document.getElementById('world'), vp=document.getElementById('vp');
+  let nodes=[], W=0, H=0, s=1, tx=0, ty=0, filtro='all';
+  const apply=()=>{world.style.transform=`translate(${tx}px,${ty}px) scale(${s})`};
+  const clamp=v=>Math.min(1.6,Math.max(.15,v));
+  function animate(){world.classList.add('anim');clearTimeout(animate.t);animate.t=setTimeout(()=>world.classList.remove('anim'),480)}
+
+  function render(){
+    nodes=[]; let maxGen=0, cursor=0, phSeq=0;
+    function build(id,gen){
+      const p=P[id], node={id,gen,p,parents:[]}; maxGen=Math.max(maxGen,gen);
+      if(expanded.has(id)&&hasParents(id)){
+        const pad=(p.padres||[]).filter(x=>P[x]);
+        const o=[pad.find(x=>P[x].sexo==='Masculino')||null,pad.find(x=>P[x].sexo==='Femenino')||null];
+        pad.forEach(x=>{if(!o.includes(x)){const i=o.indexOf(null);if(i>=0)o[i]=x}});
+        for(let i=0;i<2;i++){
+          node.parents.push(o[i]?build(o[i],gen+1):{ph:true,key:'ph'+(phSeq++),gen:gen+1,label:(i?'Madre':'Padre')+' de '+p.n,child:id});
+          maxGen=Math.max(maxGen,gen+1);
+        }
+      }
+      return node;
+    }
+    function layout(n){
+      if(n.parents&&n.parents.length){n.parents.forEach(layout);n.x=(n.parents[0].x+n.parents[1].x)/2}
+      else{n.x=cursor;cursor+=SLOT}
+      nodes.push(n);
+    }
+    const trees=ROOTS.map(r=>build(r,0));
+    layout(trees[0]); cursor+=SLOT*0.25; layout(trees[1]);
+    nodes.forEach(n=>{n.x+=PADL;n.y=PADT+(maxGen-n.gen)*ROWH});
+    W=PADL+cursor+20; H=PADT+(maxGen+1)*ROWH+BELOW;
+    world.style.width=W+'px';world.style.height=H+'px';
+
+    let svg=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
+    nodes.forEach(n=>{
+      if(!n.parents||!n.parents.length)return;
+      const cx=n.x+CW/2, midY=n.y-(ROWH-CH)/2, [f,m]=n.parents, fx=f.x+CW/2, mx=m.x+CW/2, cls=n.p&&n.p.filiacion?' class="dash"':'';
+      svg+=`<line x1="${cx}" y1="${n.y}" x2="${cx}" y2="${midY}"/><line${cls} x1="${fx}" y1="${midY}" x2="${mx}" y2="${midY}"/>`+
+           `<line${cls} x1="${fx}" y1="${f.y+CH}" x2="${fx}" y2="${midY}"/><line${cls} x1="${mx}" y1="${m.y+CH}" x2="${mx}" y2="${midY}"/>`;
+    });
+    const [ra,rb]=trees, cy=ra.y+CH/2, mid=(ra.x+CW+rb.x)/2;
+    svg+=`<line class="couple" x1="${ra.x+CW}" y1="${cy}" x2="${rb.x}" y2="${cy}"/>`;
+    if(BELOW)svg+=`<line class="dash" x1="${mid}" y1="${cy}" x2="${mid}" y2="${ra.y+CH+40}"/>`;
+    svg+='</svg>';
+    let html=svg;
+    for(let g=0;g<=maxGen;g++) html+=`<div class="genlbl" style="left:20px;top:${PADT+(maxGen-g)*ROWH+40}px"><b>${esc(GEN[g]||('Generación '+g))}</b>${g===0?'':g+(g===1?' generación arriba':' generaciones arriba')}</div>`;
+    if(BELOW)html+=`<div class="below" style="left:${mid-150}px;top:${ra.y+CH+40}px;width:300px">${esc(D.nota_abajo)}</div>`;
+    nodes.forEach(n=>{
+      if(n.ph){html+=`<div class="node" style="left:${n.x}px;top:${n.y}px"><button type="button" class="card ph" data-ph="${n.key}"><span class="nm">Sin datos</span><span class="pl">${esc(n.label)}</span><span class="st">Por investigar</span></button></div>`;return}
+      const p=n.p, root=ROOTS.includes(n.id), sd=side[n.id]||'';
+      const st=`${esc(p.estado)}${p.fotos?' · '+p.fotos+(p.fotos>1?' fotos':' foto'):''}`;
+      const open=expanded.has(n.id);
+      const exp=hasParents(n.id)?`<button type="button" class="exp ${open?'open':''}" data-exp="${n.id}" aria-expanded="${open}" aria-label="${open?'Ocultar':'Ver'} a los padres de ${esc(p.n)}">${open?'Ocultar padres':'Ver padres'}</button>`:'';
+      html+=`<div class="node ${sd}" data-node="${n.id}" style="left:${n.x}px;top:${n.y}px">${exp}<button type="button" class="card ${sd} ${p.estado==='Por verificar'?'ver':''} ${root?'root':''}" data-id="${n.id}">`+
+        `<span class="nm">${esc(p.n)}</span><span class="yr">${esc(p.an||'?')} – ${esc(p.af||'?')}</span>${p.lnac?`<span class="pl">${esc(p.lnac)}</span>`:''}<span class="st">${st}</span></button></div>`;
+    });
+    world.innerHTML=html;
+    applyFilter();
+    const sel=panel.dataset.sel; if(sel&&!panel.hidden){const el=world.querySelector(`[data-id="${sel}"]`);if(el)el.classList.add('sel')}
+  }
+  const nodeOf=id=>nodes.find(n=>n.id===id);
+  const screenOf=id=>{const n=nodeOf(id);return n?{x:n.x*s+tx,y:n.y*s+ty}:null};
+  function keepInPlace(id,before){const n=nodeOf(id);if(!n||!before)return;tx=before.x-n.x*s;ty=before.y-n.y*s;apply()}
+  function fit(anim){const r=vp.getBoundingClientRect();s=clamp(Math.min(r.width/W,r.height/H,1.15)*.94);tx=(r.width-W*s)/2;ty=(r.height-H*s)/2;if(anim)animate();apply()}
+  function zoomAt(f,cx,cy){const ns=clamp(s*f);tx=cx-(cx-tx)*ns/s;ty=cy-(cy-ty)*ns/s;s=ns;apply()}
+  function centerOn(id,{above=false}={}){
+    const n=nodeOf(id); if(!n)return;
+    const r=vp.getBoundingClientRect(), mobile=innerWidth<=760;
+    s=Math.max(s,mobile?.7:.85); const availH=mobile?r.height*.36:r.height;
+    tx=r.width/2-(n.x+CW/2)*s; ty=(above?availH*.62:availH/2)-(n.y+CH/2)*s; animate(); apply();
+  }
+  /* que la persona y sus padres queden a la vista tras expandir */
+  function ensureVisible(id){
+    const n=nodeOf(id); if(!n)return;
+    const r=vp.getBoundingClientRect(); let xs=[n.x,n.x+CW], ys=[n.y,n.y+CH];
+    (n.parents||[]).forEach(p=>{xs.push(p.x,p.x+CW);ys.push(p.y,p.y+CH)});
+    const minX=Math.min(...xs)*s+tx, maxX=Math.max(...xs)*s+tx, minY=Math.min(...ys)*s+ty-30, maxY=Math.max(...ys)*s+ty;
+    let dx=0, dy=0;
+    if(maxX-minX<r.width-24){if(minX<12)dx=12-minX;else if(maxX>r.width-12)dx=r.width-12-maxX}
+    if(minY<12)dy=12-minY;else if(maxY>r.height-12)dy=r.height-12-maxY;
+    if(dx||dy){tx+=dx;ty+=dy;animate();apply()}
+  }
+  function toggle(id){
+    const before=screenOf(id);
+    if(expanded.has(id)){
+      /* al ocultar, también se ocultan los ancestros de esa rama */
+      (function close(x){expanded.delete(x);(P[x].padres||[]).forEach(p=>{if(P[p]&&expanded.has(p))close(p)})})(id);
+    }else expanded.add(id);
+    render(); keepInPlace(id,before); if(expanded.has(id))ensureVisible(id);
+    const hint=document.getElementById('hint'); if(hint)hint.hidden=true;
+  }
+  /* abrir el camino hasta una persona (búsqueda y enlaces) */
+  function reveal(id){
+    const chain=[]; let c=id;
+    while(c&&!ROOTS.includes(c)){c=childInTree[c];if(c)chain.push(c)}
+    let changed=false; chain.forEach(x=>{if(!expanded.has(x)){expanded.add(x);changed=true}});
+    if(changed)render();
+  }
+
+  vp.addEventListener('wheel',e=>{e.preventDefault();const r=vp.getBoundingClientRect();zoomAt(Math.exp(-e.deltaY*.0015),e.clientX-r.left,e.clientY-r.top)},{passive:false});
+  const pts=new Map(); let drag=null, moved=false, pinch=null;
+  vp.addEventListener('pointerdown',e=>{
+    if(e.target.closest('.legend'))return;
+    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1){drag={x:e.clientX,y:e.clientY,tx,ty};moved=false}
+    if(pts.size===2){const [a,b]=[...pts.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),s}}
+  });
+  vp.addEventListener('pointermove',e=>{
+    if(!pts.has(e.pointerId))return; pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===2&&pinch){const [a,b]=[...pts.values()],r=vp.getBoundingClientRect();const d=Math.hypot(a.x-b.x,a.y-b.y);zoomAt((pinch.s*d/pinch.d)/s,(a.x+b.x)/2-r.left,(a.y+b.y)/2-r.top);moved=true;return}
+    if(!drag)return; const dx=e.clientX-drag.x, dy=e.clientY-drag.y;
+    if(!moved&&Math.hypot(dx,dy)>6){moved=true;vp.classList.add('dragging');try{vp.setPointerCapture(e.pointerId)}catch(_){}}
+    if(moved){tx=drag.tx+dx;ty=drag.ty+dy;apply()}
+  });
+  const end=e=>{pts.delete(e.pointerId);if(pts.size<2)pinch=null;if(!pts.size){drag=null;vp.classList.remove('dragging')}};
+  vp.addEventListener('pointerup',end);vp.addEventListener('pointercancel',end);
+  document.getElementById('zin').onclick=()=>{const r=vp.getBoundingClientRect();animate();zoomAt(1.25,r.width/2,r.height/2)};
+  document.getElementById('zout').onclick=()=>{const r=vp.getBoundingClientRect();animate();zoomAt(.8,r.width/2,r.height/2)};
+  document.getElementById('zfit').onclick=()=>fit(true);
+  document.getElementById('zreset').onclick=()=>{expanded.clear();closePanel();render();fit(true)};
+
+  /* panel */
+  const panel=document.getElementById('panel');
+  const chipEstado=e=>`<span class="chip ${e==='Confirmado'?'ok':'ver'}">${esc(e)}</span>`;
+  const personLink=id=>`<button type="button" class="link" data-go="${id}">${esc(P[id].n)}</button>`;
+  function select(id,center){
+    if(!nodeOf(id)){reveal(id);center=true}
+    document.querySelectorAll('.card.sel').forEach(c=>c.classList.remove('sel'));
+    const el=world.querySelector(`[data-id="${id}"]`); if(el)el.classList.add('sel');
+    const p=P[id], sd=side[id], node=nodeOf(id), gen=node?node.gen:0;
+    let h=`<div><div class="p-head"><h2>${esc(p.n)}</h2><button type="button" class="close" id="closeP" aria-label="Cerrar">×</button></div>
+      ${p.alias?`<p class="alias">Conocido(a) como ${esc(p.alias)}</p>`:''}
+      <div class="chips">${sd?`<span class="chip ${sd}">${sd==='fue'?'Lado Fuentes':'Lado Siller'}</span>`:''}${chipEstado(p.estado)}<span class="chip">${esc(GEN[gen]||'Generación '+gen)}</span></div></div>`;
+    const rows=[['Nacimiento',p.nac],['Lugar',p.lnac],['Fallecimiento',p.fall],['Lugar',p.lfall],['Ocupación',p.ocup]].filter(r=>r[1]);
+    h+=`<section class="sec"><h3>Datos</h3>${rows.length?`<dl class="data">${rows.map(r=>`<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join('')}</dl>`:'<p class="empty">Todavía no hay datos registrados.</p>'}${p.filiacion?'<p class="note" style="margin-top:8px">Su parentesco con los padres que aparecen aquí está por confirmar con documentos.</p>':''}</section>`;
+    const pad=(p.padres||[]).filter(x=>P[x]), par=partners(id), ks=(kids[id]||[]);
+    h+=`<section class="sec"><h3>Familia</h3><div class="rel">
+      <div class="rel-row"><span>Padres</span><div>${pad.length?pad.map(personLink).join(''):'<span class="empty">Sin datos</span>'}</div></div>
+      ${par.length?`<div class="rel-row"><span>Pareja</span><div>${par.map(personLink).join('')}</div></div>`:''}
+      ${ks.length?`<div class="rel-row"><span>Hijos</span><div>${ks.map(personLink).join('')}</div></div>`:''}
+    </div></section>`;
+    const stories=p.h||[];
+    h+=`<section class="sec"><h3>Historias y datos</h3>${stories.length?stories.map(x=>`<div class="story"><span class="kind">${esc(x.t)} ${chipEstado(x.c)}</span><h4>${esc(x.h)}</h4>${x.d?`<p>${esc(x.d)}</p>`:''}${x.f?`<small>Fuente: ${esc(x.f)}</small>`:''}</div>`).join(''):'<p class="empty">Todavía no hay historias registradas. Si conoces alguna, compártela con quien lleva la investigación.</p>'}</section>`;
+    if(p.fotos){h+=`<section class="sec"><h3>Fotografías</h3><p class="empty">${p.fotos} ${p.fotos>1?'fotografías registradas':'fotografía registrada'}. Pronto se podrán ver aquí.</p></section>`}
+    if(p.src&&p.src.length){h+=`<section class="sec"><h3>Fuentes</h3><ul class="srcs">${p.src.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></section>`}
+    if(p.url){h+=`<div class="actions"><a class="btn" href="${esc(p.url)}" target="_blank" rel="noopener">Abrir en Notion</a><p class="note">Solo funciona para quien tiene acceso al Notion de la investigación.</p></div>`}
+    panel.innerHTML=h; panel.hidden=false; panel.scrollTop=0; panel.dataset.sel=id;
+    if(center)centerOn(id);
+  }
+  function selectPh(key){
+    document.querySelectorAll('.card.sel').forEach(c=>c.classList.remove('sel'));
+    const el=world.querySelector(`[data-ph="${key}"]`); if(el)el.classList.add('sel');
+    const label=el?el.querySelector('.pl').textContent:'';
+    panel.innerHTML=`<div><div class="p-head"><h2>Sin datos todavía</h2><button type="button" class="close" id="closeP" aria-label="Cerrar">×</button></div></div>
+      <p class="empty">${esc(label)}. Aún no sabemos quién es. Si tienes un nombre, una foto o un recuerdo, compártelo con quien lleva la investigación.</p>`;
+    panel.hidden=false; panel.dataset.sel='';
+  }
+  function closePanel(){panel.hidden=true;panel.dataset.sel='';document.querySelectorAll('.card.sel').forEach(c=>c.classList.remove('sel'))}
+  world.addEventListener('click',e=>{
+    if(moved){moved=false;return}
+    const x=e.target.closest('.exp'); if(x){toggle(x.dataset.exp);return}
+    const c=e.target.closest('.card'); if(!c)return;
+    if(c.dataset.id)select(c.dataset.id,innerWidth<=760); else selectPh(c.dataset.ph);
+  });
+  panel.addEventListener('click',e=>{
+    if(e.target.closest('#closeP'))return closePanel();
+    const g=e.target.closest('[data-go]'); if(g)return select(g.dataset.go,true);
+  });
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)closePanel()});
+
+  /* filtro por lado */
+  function applyFilter(){
+    world.querySelectorAll('.node').forEach(n=>{
+      const card=n.querySelector('.card');
+      const s2=card.dataset.id?side[card.dataset.id]:null;
+      n.classList.toggle('dim',filtro!=='all'&&s2!==null&&s2!==filtro);
+    });
+  }
+  document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{
+    document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));
+    filtro=b.dataset.f; applyFilter();
+  });
+
+  /* búsqueda: encuentra a cualquiera del árbol y abre el camino hasta esa persona */
+  const q=document.getElementById('q'), res=document.getElementById('results');
+  const all=Object.keys(side);
+  q.addEventListener('input',()=>{
+    const v=norm(q.value.trim()); if(!v){res.hidden=true;return}
+    const m=all.map(id=>[id,P[id]]).filter(([,p])=>norm(p.n+' '+(p.alias||'')).includes(v)).slice(0,8);
+    res.innerHTML=m.length?m.map(([id,p])=>`<li><button type="button" data-go="${id}">${esc(p.n)}<br><small>${esc((p.an||'?')+' – '+(p.af||'?'))}</small></button></li>`).join(''):'<li style="padding:8px 10px;color:var(--muted)">Nadie con ese nombre en el árbol.</li>';
+    res.hidden=false;
+  });
+  res.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(!g)return;res.hidden=true;q.value='';select(g.dataset.go,true)});
+  document.addEventListener('click',e=>{if(!e.target.closest('.search'))res.hidden=true});
+
+  addEventListener('resize',()=>fit(false));
+  render(); fit(false);
+}
+</script>
