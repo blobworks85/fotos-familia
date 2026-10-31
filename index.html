@@ -93,7 +93,6 @@ button{font:inherit; cursor:pointer}
 .opciones .nuevo{color:var(--acento); font-weight:700}
 .campos{display:flex; flex-direction:column; gap:12px}
 .campo{display:flex; flex-direction:column; gap:6px}
-details summary{cursor:pointer; font-weight:700; color:var(--acento); min-height:44px; display:flex; align-items:center}
 .pie{color:var(--tenue); font-size:15px; text-align:center}
 .compartir{display:flex; flex-direction:column; gap:8px; border-top:1px dashed var(--linea); padding-top:12px}
 .aviso{background:var(--acento-suave); border-radius:10px; padding:12px 14px; font-size:16px}
@@ -138,16 +137,14 @@ details summary{cursor:pointer; font-weight:700; color:var(--acento); min-height
     <div class="fila">
       <button class="boton secundario" type="button" id="agregar-cara">Marcar una cara que falta</button>
     </div>
-    <details id="mas-datos">
-      <summary>¿Sabes cuándo, dónde o qué pasaba?</summary>
-      <div class="campos">
-        <div class="campo"><label for="cuando">¿Cuándo? (año aproximado)</label><input type="text" id="cuando" placeholder="Ej. 1965, o «por los 70»"></div>
-        <div class="campo"><label for="donde">¿Dónde?</label><input type="text" id="donde" placeholder="Ej. Saltillo, casa de la abuela Delia"></div>
-        <div class="campo"><label for="ocasion">¿Qué se celebraba o qué pasaba?</label><input type="text" id="ocasion" placeholder="Ej. boda, bautizo, Navidad"></div>
-        <div class="campo"><label for="historia">Lo que recuerdes</label><textarea id="historia" placeholder="Una anécdota, quién tomó la foto…"></textarea></div>
-      </div>
-    </details>
-    <button class="boton" type="button" id="guardar">Guardar y ver la siguiente</button>
+    <button class="boton secundario" type="button" id="abrir-datos" aria-expanded="false" aria-controls="mas-datos">＋ Agregar cuándo, dónde o una historia</button>
+    <div class="campos" id="mas-datos" hidden>
+      <div class="campo"><label for="cuando">¿Cuándo? (año aproximado)</label><input type="text" id="cuando" placeholder="Ej. 1965, o «por los 70»"></div>
+      <div class="campo"><label for="donde">¿Dónde?</label><input type="text" id="donde" placeholder="Ej. Saltillo, casa de la abuela Delia"></div>
+      <div class="campo"><label for="ocasion">¿Qué se celebraba o qué pasaba?</label><input type="text" id="ocasion" placeholder="Ej. boda, bautizo, Navidad"></div>
+      <div class="campo"><label for="historia">Lo que recuerdes</label><textarea id="historia" placeholder="Una anécdota, quién tomó la foto…"></textarea></div>
+    </div>
+    <button class="boton" type="button" id="guardar">Siguiente foto</button>
     <div class="fila">
       <button class="boton secundario" type="button" id="nadie">No conozco a nadie aquí</button>
       <button class="boton secundario" type="button" id="saltar">Saltar por ahora</button>
@@ -380,7 +377,7 @@ function abrir(f){
   actual = f; caras = []; activa = -1; imagen = null;
   $("galeria").hidden = false; $("terminado").hidden = true;
   ["cuando","donde","ocasion","historia"].forEach(function(id){ $(id).value = ""; });
-  $("mas-datos").open = false;
+  $("mas-datos").hidden = true; $("abrir-datos").hidden = false; $("abrir-datos").setAttribute("aria-expanded","false");
   estado("estado-envio", "");
   pintarAvance(); pintarDatos(); pintarCaras();
   estado("estado-foto", "Abriendo la foto…", "", true);
@@ -535,8 +532,16 @@ function pintarLista(){
     }
     ol.appendChild(li);
   });
-  if (imagen && caras.length) $("guardar").textContent = pend ? "Guardar y ver la siguiente" : "Guardar y ver la siguiente ✓";
+  actualizarBoton();
 }
+function hayAlgoNuevo(){
+  return caras.some(function(c){ return c.yo; }) || ["cuando","donde","ocasion","historia"].some(function(id){ return $(id).value.trim(); });
+}
+function actualizarBoton(){ $("guardar").textContent = hayAlgoNuevo() ? "Guardar y ver la siguiente" : "Siguiente foto"; }
+["cuando","donde","ocasion","historia"].forEach(function(id){ $(id).addEventListener("input", actualizarBoton); });
+$("abrir-datos").addEventListener("click", function(){
+  $("mas-datos").hidden = false; this.hidden = true; this.setAttribute("aria-expanded","true"); $("cuando").focus();
+});
 function enfocar(){ var el = $("item-" + activa); if (el) el.scrollIntoView({block:"center", behavior:"smooth"}); }
 
 // ---------- Enlace por foto (solo vista completa) ----------
