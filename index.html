@@ -522,8 +522,8 @@ function pintarLista(){
           var sig = caras.findIndex(function(x, j){ return j > i && !nombreDe(x); });
           activa = sig; pintarCaras(); if (sig !== -1) enfocar();
         }, {foto:actual, excluir:usados, desconocido:true});
-        if (c.manual){
-          var q = document.createElement("button"); q.type = "button"; q.className = "enlace"; q.textContent = "Quitar esta marca";
+        if (c.manual || !nombreDe(c)){
+          var q = document.createElement("button"); q.type = "button"; q.className = "enlace"; q.textContent = "Esto no es una cara: quitar la marca";
           q.addEventListener("click", function(){ caras.splice(i,1); activa = -1; pintarCaras(); });
           li.appendChild(q);
         }
