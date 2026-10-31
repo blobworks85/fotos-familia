@@ -96,6 +96,14 @@ button{font:inherit; cursor:pointer}
 .pie{color:var(--tenue); font-size:15px; text-align:center}
 .compartir{display:flex; flex-direction:column; gap:8px; border-top:1px dashed var(--linea); padding-top:12px}
 .aviso{background:var(--acento-suave); border-radius:10px; padding:12px 14px; font-size:16px}
+#guardar{position:sticky; bottom:max(12px, env(safe-area-inset-bottom,0px)); z-index:5; box-shadow:0 6px 18px rgba(0,0,0,.25)}
+#paso-quien.compacto{padding:12px 18px; gap:4px}
+#paso-quien.compacto h2, #paso-quien.compacto > .ayuda:not(#yo-listo){display:none}
+.lleno .cara span{display:none}
+.lleno .cara.activa span, .lleno .cara.lista span{display:block}
+.item-cara.activa .miniatura{width:112px; height:112px}
+.cara{min-width:14px; min-height:14px}
+.eligiendo #guardar{position:static; box-shadow:none}
 </style>
 </head>
 <body>
@@ -245,8 +253,9 @@ function pintarYo(){
     $("buscador-yo").hidden = true; $("yo-listo").hidden = false;
     $("yo-listo").innerHTML = "Eres <b>" + esc(yo.nombre) + "</b>. <button class=\"enlace\" type=\"button\" id=\"cambiar-yo\">No soy yo</button>";
     $("cambiar-yo").addEventListener("click", function(){ yo = null; guarda("galeria2-yo", "null"); pintarYo(); });
-    $("paso-quien").classList.toggle("compacto", true);
+    $("paso-quien").classList.add("compacto");
   } else {
+    $("paso-quien").classList.remove("compacto");
     $("buscador-yo").hidden = false; $("yo-listo").hidden = true;
     crearBuscador($("buscador-yo"), "yo", "", function(r){
       if (!r) return;
@@ -472,6 +481,7 @@ $("lienzo").addEventListener("click", function(e){
 function pintarCaras(){
   var lienzo = $("lienzo");
   Array.prototype.slice.call(lienzo.querySelectorAll(".cara")).forEach(function(n){ n.remove(); });
+  lienzo.classList.toggle("lleno", caras.length > 8);
   caras.forEach(function(c, i){
     var b = document.createElement("button"); b.type = "button";
     b.className = "cara" + (nombreDe(c) ? " lista" : "") + (i===activa ? " activa" : "");
@@ -543,6 +553,9 @@ $("abrir-datos").addEventListener("click", function(){
   $("mas-datos").hidden = false; this.hidden = true; this.setAttribute("aria-expanded","true"); $("cuando").focus();
 });
 function enfocar(){ var el = $("item-" + activa); if (el) el.scrollIntoView({block:"center", behavior:"smooth"}); }
+
+document.addEventListener("focusin", function(e){ if (e.target.matches && e.target.matches("input, textarea")) document.body.classList.add("eligiendo"); });
+document.addEventListener("focusout", function(){ setTimeout(function(){ if (!document.activeElement || !document.activeElement.matches("input, textarea")) document.body.classList.remove("eligiendo"); }, 200); });
 
 // ---------- Enlace por foto (solo vista completa) ----------
 function pintarCompartir(){
