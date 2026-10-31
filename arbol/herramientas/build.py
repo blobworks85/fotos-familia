@@ -29,6 +29,9 @@ RENOMBRAR_FUENTE = [
 
 
 def fuente_familiar(t):
+    m = re.match(r"FamilySearch: registros de las líneas (.+?)\s*\(revisión", t)
+    if m:
+        return f"Actas parroquiales y del registro civil (líneas {m.group(1)})"
     for pre, nuevo in RENOMBRAR_FUENTE:
         if t.startswith(pre):
             return nuevo
