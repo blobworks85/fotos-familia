@@ -5,102 +5,66 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fotos de la familia</title>
 <meta name="robots" content="noindex, nofollow">
-<meta name="description" content="Sube una foto familiar y cuéntanos quién aparece.">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="Ayúdanos a saber quién aparece en las fotos de la familia.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
 <style>
-/* Álbum de familia: una sola columna, letra grande y botones amplios
-   para que cualquier tío o tía la use desde el celular. */
+/* Galería para identificar caras. Una foto a la vez, letra grande y botones
+   amplios: la usan tíos y tías desde el celular. */
 :root{
-  --papel:#eef0eb;
-  --hoja:#fbfbf8;
-  --tinta:#1e2826;
-  --tenue:#5d6a66;
-  --linea:#cfd6d1;
-  --acento:#1f5d62;
-  --acento-suave:#d9e9e8;
-  --marca:#f2c94c;
-  --bien:#2e7d4f;
-  --error:#a5372e;
+  --papel:#eef0eb; --hoja:#fbfbf8; --tinta:#1e2826; --tenue:#5d6a66; --linea:#cfd6d1;
+  --acento:#1f5d62; --acento-suave:#d9e9e8; --marca:#f2c94c; --bien:#2e7d4f; --error:#a5372e;
   --display:"Young Serif", Georgia, "Times New Roman", serif;
   --texto:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
-  :root{
-    --papel:#141a19; --hoja:#1d2523; --tinta:#e8eeeb; --tenue:#9fb0ab;
-    --linea:#34413e; --acento:#7cc4c4; --acento-suave:#203433;
-    --marca:#f2c94c; --bien:#6fcf97; --error:#f08a7e; color-scheme:dark;
+  :root:not([data-theme="light"]){
+    --papel:#141a19; --hoja:#1d2523; --tinta:#e8eeeb; --tenue:#9fb0ab; --linea:#34413e;
+    --acento:#7cc4c4; --acento-suave:#203433; --bien:#6fcf97; --error:#f08a7e; color-scheme:dark;
   }
 }
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
-body{
-  margin:0; background:var(--papel); color:var(--tinta);
-  font-family:var(--texto); font-size:18px; line-height:1.5;
-  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px);
-}
-.envoltura{
-  max-width:640px; margin:0 auto;
-  padding-left:max(16px, env(safe-area-inset-left,0px));
-  padding-right:max(16px, env(safe-area-inset-right,0px));
-  padding-block:28px 64px;
-  display:flex; flex-direction:column; gap:20px;
-}
+body{margin:0; background:var(--papel); color:var(--tinta); font-family:var(--texto); font-size:18px; line-height:1.5;
+  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.envoltura{max-width:680px; margin:0 auto; padding:24px max(16px, env(safe-area-inset-right,0px)) 64px max(16px, env(safe-area-inset-left,0px));
+  display:flex; flex-direction:column; gap:18px}
 header{display:flex; flex-direction:column; gap:6px}
 .antetitulo{font-size:14px; letter-spacing:.12em; text-transform:uppercase; color:var(--tenue); font-weight:700}
-h1{font-family:var(--display); font-weight:400; font-size:clamp(32px,8vw,44px); line-height:1.1; margin:0; text-wrap:balance}
-h2{font-family:var(--display); font-weight:400; font-size:24px; line-height:1.2; margin:0; text-wrap:balance}
+h1{font-family:var(--display); font-weight:400; font-size:clamp(30px,8vw,42px); line-height:1.1; margin:0; text-wrap:balance}
+h2{font-family:var(--display); font-weight:400; font-size:23px; line-height:1.2; margin:0; text-wrap:balance}
 p{margin:0}
-.intro{color:var(--tenue); max-width:60ch}
-.tarjeta{
-  background:var(--hoja); border:1px solid var(--linea); border-radius:14px;
-  padding:20px; display:flex; flex-direction:column; gap:14px;
-}
-.paso{display:flex; align-items:baseline; gap:10px}
-.paso .num{
-  flex:none; width:30px; height:30px; border-radius:50%;
-  background:var(--acento); color:var(--hoja); font-weight:700; font-size:16px;
-  display:inline-flex; align-items:center; justify-content:center; transform:translateY(-2px);
-}
+.intro, .ayuda{color:var(--tenue)}
+.ayuda{font-size:16px}
+.pestanas{display:flex; gap:8px; border-bottom:2px solid var(--linea)}
+.pestanas a{padding:10px 4px; margin-bottom:-2px; color:var(--tenue); text-decoration:none; font-weight:700; border-bottom:3px solid transparent}
+.pestanas a[aria-current]{color:var(--acento); border-color:var(--acento)}
+.tarjeta{background:var(--hoja); border:1px solid var(--linea); border-radius:14px; padding:18px; display:flex; flex-direction:column; gap:14px}
 label, .etiqueta{font-weight:700; font-size:17px}
-.ayuda{color:var(--tenue); font-size:16px}
-input[type=text], textarea{
-  width:100%; font:inherit; color:var(--tinta); background:var(--papel);
-  border:2px solid var(--linea); border-radius:10px; padding:12px 14px; min-height:52px;
-}
-textarea{min-height:110px; resize:vertical}
-input:focus, textarea:focus, button:focus-visible{outline:3px solid var(--acento); outline-offset:2px; border-color:var(--acento)}
+input[type=text], textarea{width:100%; font:inherit; color:var(--tinta); background:var(--papel); border:2px solid var(--linea); border-radius:10px; padding:12px 14px; min-height:52px}
+textarea{min-height:96px; resize:vertical}
+input:focus, textarea:focus, button:focus-visible, a:focus-visible{outline:3px solid var(--acento); outline-offset:2px}
 button{font:inherit; cursor:pointer}
-.boton{
-  min-height:54px; padding:12px 20px; border-radius:12px; border:2px solid var(--acento);
-  background:var(--acento); color:var(--hoja); font-weight:700; font-size:18px;
-  display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%;
-}
+.boton{min-height:54px; padding:12px 18px; border-radius:12px; border:2px solid var(--acento); background:var(--acento); color:var(--hoja);
+  font-weight:700; font-size:18px; display:inline-flex; align-items:center; justify-content:center; gap:8px; width:100%; text-decoration:none}
 .boton.secundario{background:transparent; color:var(--acento)}
 .boton[disabled]{opacity:.5; cursor:not-allowed}
-.fila-botones{display:flex; gap:10px; flex-wrap:wrap}
-.fila-botones .boton{flex:1 1 200px}
-.subir{
-  position:relative; border:2px dashed var(--acento); border-radius:14px; padding:28px 16px;
-  text-align:center; background:var(--acento-suave); color:var(--acento); font-weight:700;
-}
-.subir input{position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%}
-.lienzo{position:relative; width:100%; border-radius:10px; overflow:hidden; background:#000; touch-action:manipulation}
+.fila{display:flex; gap:10px; flex-wrap:wrap}
+.fila .boton{flex:1 1 190px}
+.avance{display:flex; flex-direction:column; gap:6px}
+.barra{height:10px; border-radius:5px; background:var(--linea); overflow:hidden}
+.barra i{display:block; height:100%; background:var(--bien); width:0; transition:width .4s}
+.lienzo{position:relative; width:100%; border-radius:10px; overflow:hidden; background:#000; min-height:200px}
 .lienzo img{display:block; width:100%; height:auto}
-.cara{
-  position:absolute; border:3px solid var(--marca); border-radius:6px;
-  background:transparent; padding:0; box-shadow:0 0 0 2px rgba(0,0,0,.45);
-}
+.cara{position:absolute; border:3px solid var(--marca); border-radius:6px; background:transparent; padding:0; box-shadow:0 0 0 2px rgba(0,0,0,.45)}
 .cara.lista{border-color:#6fcf97}
 .cara.activa{border-color:#fff; box-shadow:0 0 0 3px var(--acento), 0 0 0 5px rgba(0,0,0,.5)}
-.cara span{
-  position:absolute; left:50%; top:100%; transform:translate(-50%,4px);
-  min-width:26px; height:26px; padding:0 6px; border-radius:13px;
-  background:var(--marca); color:#1e2826; font-weight:700; font-size:15px; line-height:26px; text-align:center;
-}
+.cara span{position:absolute; left:50%; top:100%; transform:translate(-50%,4px); min-width:26px; height:26px; padding:0 6px; border-radius:13px;
+  background:var(--marca); color:#1e2826; font-weight:700; font-size:15px; line-height:26px; text-align:center; white-space:nowrap}
 .cara.lista span{background:#6fcf97}
 .agregando .lienzo{outline:3px solid var(--marca); cursor:crosshair}
 .estado{font-size:16px; color:var(--tenue); display:flex; align-items:center; gap:8px}
@@ -108,154 +72,241 @@ button{font:inherit; cursor:pointer}
 .estado.bien{color:var(--bien); font-weight:700}
 .girando{width:18px; height:18px; border-radius:50%; border:3px solid var(--linea); border-top-color:var(--acento); animation:gira 1s linear infinite; flex:none}
 @keyframes gira{to{transform:rotate(360deg)}}
-@media (prefers-reduced-motion: reduce){.girando{animation:none}}
-.lista-caras{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px}
-.item-cara{border:2px solid var(--linea); border-radius:12px; padding:14px; display:flex; flex-direction:column; gap:10px; background:var(--papel)}
+@media (prefers-reduced-motion: reduce){.girando{animation:none} .barra i{transition:none}}
+.datos-foto{display:flex; flex-wrap:wrap; gap:6px 14px; color:var(--tenue); font-size:16px}
+.lista-caras{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px}
+.item-cara{border:2px solid var(--linea); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:10px; background:var(--papel)}
 .item-cara.activa{border-color:var(--acento)}
-.item-cara .cabeza{display:flex; align-items:center; gap:12px}
+.item-cara .cabeza{display:flex; align-items:center; gap:12px; cursor:pointer}
 .miniatura{width:56px; height:56px; border-radius:8px; flex:none; background:var(--linea) center/cover no-repeat}
 .item-cara .titulo{font-weight:700}
 .item-cara .valor{color:var(--tenue); font-size:16px}
 .item-cara .valor.ok{color:var(--bien)}
+.item-cara .valor.mio{color:var(--acento); font-weight:700}
 .enlace{background:none; border:0; color:var(--acento); text-decoration:underline; padding:6px 0; font-size:16px; text-align:left}
-.buscador{position:relative}
-.opciones{
-  list-style:none; margin:6px 0 0; padding:6px; border:2px solid var(--acento); border-radius:10px;
-  background:var(--hoja); max-height:300px; overflow-y:auto; display:flex; flex-direction:column; gap:2px;
-}
-.opciones li button{
-  width:100%; text-align:left; background:none; border:0; color:var(--tinta);
-  padding:10px 10px; border-radius:8px; min-height:48px; display:flex; flex-direction:column;
-}
+.opciones{list-style:none; margin:6px 0 0; padding:6px; border:2px solid var(--acento); border-radius:10px; background:var(--hoja);
+  max-height:320px; overflow-y:auto; display:flex; flex-direction:column; gap:2px}
+.opciones .grupo{font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--tenue); padding:8px 10px 2px}
+.opciones li button{width:100%; text-align:left; background:none; border:0; color:var(--tinta); padding:10px; border-radius:8px; min-height:48px; display:flex; flex-direction:column}
 .opciones li button:hover, .opciones li button:focus-visible{background:var(--acento-suave)}
 .opciones small{color:var(--tenue); font-size:14px}
 .opciones .nuevo{color:var(--acento); font-weight:700}
-.campos{display:flex; flex-direction:column; gap:14px}
+.campos{display:flex; flex-direction:column; gap:12px}
 .campo{display:flex; flex-direction:column; gap:6px}
+details summary{cursor:pointer; font-weight:700; color:var(--acento); min-height:44px; display:flex; align-items:center}
 .pie{color:var(--tenue); font-size:15px; text-align:center}
-.resumen-ok{display:flex; flex-direction:column; gap:12px; text-align:center; align-items:center}
-.resumen-ok .sello{width:64px; height:64px; border-radius:50%; background:var(--bien); color:var(--hoja); display:flex; align-items:center; justify-content:center; font-size:34px}
+.compartir{display:flex; flex-direction:column; gap:8px; border-top:1px dashed var(--linea); padding-top:12px}
+.aviso{background:var(--acento-suave); border-radius:10px; padding:12px 14px; font-size:16px}
 </style>
 </head>
 <body>
-<main class="envoltura" id="app">
+<main class="envoltura">
   <header>
-    <span class="antetitulo">Melgarejo · Fuentes · Siller</span>
-    <h1>Fotos de la familia</h1>
-    <p class="intro">Sube una foto, toca cada cara y dinos quién es. Lo que tú identifiques queda guardado en la historia de la familia con tu nombre.</p>
+    <span class="antetitulo" id="antetitulo">Fotos de la familia</span>
+    <h1>¿Quién sale en la foto?</h1>
+    <p class="intro">Toca las caras que tengan <b>?</b> y dinos quién es. Lo que identifiques queda guardado en la historia de la familia con tu nombre.</p>
   </header>
 
-  <section class="tarjeta" id="paso-codigo" hidden>
-    <div class="paso"><span class="num">·</span><h2>Código de la familia</h2></div>
-    <p class="ayuda">Viene en el mensaje donde te mandaron este enlace.</p>
-    <input type="text" id="codigo" autocomplete="off" autocapitalize="none">
+  <nav class="pestanas" aria-label="Secciones">
+    <a href="#" aria-current="page" id="tab-etiquetar">Identificar caras</a>
+    <a href="subir.html#fuentes-melgarejo" id="tab-subir">Subir una foto</a>
+  </nav>
+
+  <section class="tarjeta" id="sin-llave" hidden>
+    <h2>Abre esta página con tu enlace</h2>
+    <p class="ayuda">La galería se abre con el enlace que te mandaron por WhatsApp. Si lo perdiste, pídeselo a Mike.</p>
   </section>
 
-  <section class="tarjeta" id="paso-quien">
-    <div class="paso"><span class="num">1</span><h2>¿Quién eres?</h2></div>
-    <p class="ayuda">Escribe tu nombre y elígelo de la lista. Si no apareces, escríbelo completo.</p>
-    <div class="buscador" id="buscador-yo"></div>
+  <p class="estado" id="cargando"><span class="girando"></span><span>Abriendo las fotos…</span></p>
+
+  <section class="tarjeta" id="paso-quien" hidden>
+    <h2>¿Quién eres?</h2>
+    <p class="ayuda">Escribe tu nombre y elígelo. Solo te lo pregunto una vez.</p>
+    <div id="buscador-yo"></div>
+    <p class="ayuda" id="yo-listo" hidden></p>
   </section>
 
-  <section class="tarjeta" id="paso-foto">
-    <div class="paso"><span class="num">2</span><h2>Sube una foto</h2></div>
-    <label class="subir" id="zona-subir">
-      <span id="texto-subir">Toca aquí para elegir una foto</span>
-      <input type="file" id="archivo" accept="image/*">
-    </label>
-    <div id="area-foto" hidden>
-      <div class="lienzo" id="lienzo"><img id="foto" alt="Foto que estás identificando"></div>
+  <section class="tarjeta" id="galeria" hidden>
+    <div class="avance">
+      <span class="ayuda" id="texto-avance"></span>
+      <div class="barra" aria-hidden="true"><i id="barra"></i></div>
     </div>
-    <p class="estado" id="estado-caras" hidden></p>
-    <div class="fila-botones" id="botones-foto" hidden>
-      <button class="boton secundario" type="button" id="agregar-cara">Marcar una cara que falta</button>
-      <button class="boton secundario" type="button" id="cambiar-foto">Elegir otra foto</button>
-    </div>
-  </section>
-
-  <section class="tarjeta" id="paso-caras" hidden>
-    <div class="paso"><span class="num">3</span><h2>¿Quién aparece?</h2></div>
-    <p class="ayuda">Van de izquierda a derecha. Toca una cara en la foto o en la lista para decir quién es. Si no sabes, déjala así.</p>
+    <div class="lienzo" id="lienzo"><img id="foto" alt=""></div>
+    <p class="estado" id="estado-foto" hidden></p>
+    <div class="datos-foto" id="datos-foto"></div>
     <ol class="lista-caras" id="lista-caras"></ol>
-  </section>
-
-  <section class="tarjeta" id="paso-datos" hidden>
-    <div class="paso"><span class="num">4</span><h2>Lo que sepas de la foto</h2></div>
-    <p class="ayuda">Todo es opcional. Lo que escribas aquí se guarda tal cual.</p>
-    <div class="campos">
-      <div class="campo"><label for="cuando">¿Cuándo? (año aproximado)</label><input type="text" id="cuando" placeholder="Ej. 1965, o «por los 70»"></div>
-      <div class="campo"><label for="donde">¿Dónde?</label><input type="text" id="donde" placeholder="Ej. Saltillo, casa de la abuela Delia"></div>
-      <div class="campo"><label for="ocasion">¿Qué se celebraba o qué pasaba?</label><input type="text" id="ocasion" placeholder="Ej. boda de…, bautizo, Navidad"></div>
-      <div class="campo"><label for="original">¿Quién tiene la foto original?</label><input type="text" id="original"></div>
-      <div class="campo"><label for="historia">Cuéntanos lo que recuerdes</label><textarea id="historia" placeholder="Quiénes son, qué estaban haciendo, alguna anécdota…"></textarea></div>
+    <div class="fila">
+      <button class="boton secundario" type="button" id="agregar-cara">Marcar una cara que falta</button>
     </div>
-    <button class="boton" type="button" id="enviar">Guardar la foto</button>
+    <details id="mas-datos">
+      <summary>¿Sabes cuándo, dónde o qué pasaba?</summary>
+      <div class="campos">
+        <div class="campo"><label for="cuando">¿Cuándo? (año aproximado)</label><input type="text" id="cuando" placeholder="Ej. 1965, o «por los 70»"></div>
+        <div class="campo"><label for="donde">¿Dónde?</label><input type="text" id="donde" placeholder="Ej. Saltillo, casa de la abuela Delia"></div>
+        <div class="campo"><label for="ocasion">¿Qué se celebraba o qué pasaba?</label><input type="text" id="ocasion" placeholder="Ej. boda, bautizo, Navidad"></div>
+        <div class="campo"><label for="historia">Lo que recuerdes</label><textarea id="historia" placeholder="Una anécdota, quién tomó la foto…"></textarea></div>
+      </div>
+    </details>
+    <button class="boton" type="button" id="guardar">Guardar y ver la siguiente</button>
+    <div class="fila">
+      <button class="boton secundario" type="button" id="nadie">No conozco a nadie aquí</button>
+      <button class="boton secundario" type="button" id="saltar">Saltar por ahora</button>
+    </div>
     <p class="estado" id="estado-envio" hidden></p>
-  </section>
-
-  <section class="tarjeta" id="paso-listo" hidden>
-    <div class="resumen-ok">
-      <div class="sello" aria-hidden="true">✓</div>
-      <h2>¡Gracias! La foto quedó guardada.</h2>
-      <p class="ayuda" id="resumen-listo"></p>
-      <button class="boton" type="button" id="otra">Subir otra foto</button>
+    <div class="compartir" id="compartir" hidden>
+      <span class="etiqueta">Enlace a esta foto (solo lo ves tú)</span>
+      <p class="ayuda">Mándalo al grupo con una pregunta concreta, p. ej. «¿quién es la señora de la derecha?».</p>
+      <div class="fila" id="botones-compartir"></div>
     </div>
   </section>
 
-  <p class="pie">Las fotos van directo al archivo de la familia. No se publican en ningún lado.</p>
+  <section class="tarjeta" id="terminado" hidden>
+    <h2>¡Ya viste todas las fotos!</h2>
+    <p class="ayuda">Gracias. Cuando haya fotos nuevas te avisamos por el grupo.</p>
+    <button class="boton secundario" type="button" id="repasar">Volver a verlas</button>
+  </section>
+
+  <p class="pie">Las fotos están cifradas: solo se ven con el enlace de la familia.</p>
 </main>
 
-<script src="personas.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.js"></script>
 <script>
 (function(){
 "use strict";
-var WEBHOOK = "https://hook.us2.make.com/bf3qntdjnoofa9hinjypphlhf6zhq6y4";
+var MODELOS_JS = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.js";
 var MODELOS = "https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/model/";
-var LADO_MAX = 2400;       // lado mayor de la foto que se guarda
-var LADO_DETECCION = 1200; // lado mayor para buscar caras
+var NOMBRE_LINEA = {M:"Melgarejo", F:"Fuentes"};
 
 function $(id){ return document.getElementById(id); }
 function guarda(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
 function lee(k){ try{ return localStorage.getItem(k) || ""; }catch(e){ return ""; } }
+function leeJSON(k, d){ try{ return JSON.parse(lee(k)) || d; }catch(e){ return d; } }
 function normal(s){ return (s||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().trim(); }
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
+function estado(id, texto, tipo, girando){
+  var el = $(id); el.hidden = !texto; el.className = "estado" + (tipo ? " "+tipo : "");
+  el.innerHTML = (girando ? "<span class=\"girando\"></span>" : "") + "<span></span>";
+  el.lastChild.textContent = texto || "";
+}
+function deB64(s){ s = s.replace(/-/g,"+").replace(/_/g,"/"); while (s.length % 4) s += "=";
+  var b = atob(s), u = new Uint8Array(b.length); for (var i=0;i<b.length;i++) u[i]=b.charCodeAt(i); return u; }
+function llaveAES(b64){ return crypto.subtle.importKey("raw", deB64(b64), "AES-GCM", false, ["decrypt"]); }
+function descifra(llave, iv, ct){ return llaveAES(llave).then(function(k){ return crypto.subtle.decrypt({name:"AES-GCM", iv:iv}, k, ct); }); }
 
-// ---------- Personas (sin duplicados por nombre) ----------
-var PERSONAS = [];
-(function(){
-  var vistos = {};
-  (window.PERSONAS || []).forEach(function(p){
-    var clave = normal(p[1]);
-    var obj = {id:p[0], nombre:p[1], alias:p[2]||"", rama:p[3]||"", busca:normal(p[1]+" "+(p[2]||""))};
-    if (vistos[clave]){
-      if (!vistos[clave].alias && obj.alias){ Object.assign(vistos[clave], obj); }
-      return;
-    }
-    vistos[clave] = obj; PERSONAS.push(obj);
+// ---------- Enlace ----------
+var h = (location.hash || "").replace(/^#/, "");
+if (/^[a-z-]+$/.test(h)){ location.replace("subir.html#" + h); return; }   // enlace viejo de «subir»
+var params = new URLSearchParams(h);
+var llaves = {};
+if (params.get("m")) llaves.M = params.get("m");
+if (params.get("f")) llaves.F = params.get("f");
+if (!llaves.M && !llaves.F) llaves = leeJSON("galeria2-llaves", {});
+else guarda("galeria2-llaves", JSON.stringify(llaves));
+var fotoPedida = params.get("foto") || "";
+var modo = (llaves.M ? "M" : "") + (llaves.F ? "F" : "");   // "M", "F" o "MF" (Mike)
+
+if (!modo){ $("cargando").hidden = true; $("sin-llave").hidden = false; return; }
+$("antetitulo").textContent = modo === "MF" ? "Melgarejo · Fuentes (vista completa)" : "Familia " + NOMBRE_LINEA[modo];
+$("tab-etiquetar").addEventListener("click", function(e){ e.preventDefault(); });
+
+// ---------- Datos ----------
+var FOTOS = [], PERSONAS = [], CODIGO = "", WEBHOOK = "";
+var hechas = leeJSON("galeria2-hechas", {});      // id de foto -> true (ya mandó algo)
+var mias = leeJSON("galeria2-mias", {});          // id de foto -> caras que esta persona puso
+
+fetch("galeria/m.json", {cache:"no-cache"}).then(function(r){ return r.json(); }).then(function(ind){
+  return Promise.all(Object.keys(llaves).map(function(l){
+    var e = ind.lineas[l]; if (!e) return null;
+    return descifra(llaves[l], deB64(e.iv), deB64(e.ct)).then(function(buf){
+      return JSON.parse(new TextDecoder().decode(buf));
+    });
+  }));
+}).then(function(datos){
+  var vistas = {};
+  datos.forEach(function(d){
+    if (!d) return;
+    CODIGO = d.codigo; WEBHOOK = d.webhook;
+    if (!PERSONAS.length) PERSONAS = d.personas.map(function(p){
+      return {id:p[0], nombre:p[1], alias:p[2]||"", rama:p[3]||"", nac:p[4], muerte:p[5], gen:p[6], cont:p[7],
+              busca:normal(p[1]+" "+(p[2]||""))};
+    });
+    d.fotos.forEach(function(f){ if (!vistas[f.id]){ vistas[f.id] = 1; FOTOS.push(f); } });
   });
-})();
+  $("cargando").hidden = true;
+  if (!FOTOS.length && !PERSONAS.length) throw new Error("vacío");
+  iniciar();
+}).catch(function(){
+  $("cargando").hidden = true; $("sin-llave").hidden = false;
+  $("sin-llave").querySelector("h2").textContent = "No pude abrir las fotos";
+  $("sin-llave").querySelector("p").textContent = "Puede que el enlace esté incompleto o haya cambiado. Pídele a Mike el enlace nuevo.";
+});
 
-function buscar(texto){
-  var t = normal(texto); if (!t) return [];
-  var partes = t.split(/\s+/);
-  var res = PERSONAS.filter(function(p){ return partes.every(function(x){ return p.busca.indexOf(x) !== -1; }); });
+// ---------- Quién eres ----------
+var yo = leeJSON("galeria2-yo", null);
+function pintarYo(){
+  $("paso-quien").hidden = false;
+  if (yo){
+    $("buscador-yo").hidden = true; $("yo-listo").hidden = false;
+    $("yo-listo").innerHTML = "Eres <b>" + esc(yo.nombre) + "</b>. <button class=\"enlace\" type=\"button\" id=\"cambiar-yo\">No soy yo</button>";
+    $("cambiar-yo").addEventListener("click", function(){ yo = null; guarda("galeria2-yo", "null"); pintarYo(); });
+    $("paso-quien").classList.toggle("compacto", true);
+  } else {
+    $("buscador-yo").hidden = false; $("yo-listo").hidden = true;
+    crearBuscador($("buscador-yo"), "yo", "", function(r){
+      if (!r) return;
+      yo = r.persona ? {nombre:r.persona.nombre, id:r.persona.id} : {nombre:r.nuevo, id:""};
+      guarda("galeria2-yo", JSON.stringify(yo)); pintarYo();
+    }, {sinFoto:true});
+  }
+}
+
+// ---------- Filtro de nombres ----------
+var LINEA_RAMA = {Fuentes:"M", Melgarejo:"P"};
+function nacEstimado(p){ return p.nac || (p.gen != null ? 1985 - 30*(p.gen-1) : null); }
+// 0 = probable (de la línea), 1 = probable (otra rama), 2 = sin fechas, 3 = poco probable por fechas
+function grupo(p, foto){
+  var anio = foto && foto.anio, linea = foto && foto.linea;
+  var deLinea = !linea || linea === "Ambas" ? (p.rama === "P" || p.rama === "M") : p.rama === LINEA_RAMA[linea];
+  var plausible = null;
+  if (p.cont){ plausible = anio ? anio >= 1940 : true; }
+  else if (p.nac || p.muerte){
+    if (anio){ plausible = (!p.nac || p.nac <= anio + 1) && (!p.muerte || p.muerte >= anio) && (!p.nac || anio - p.nac <= 100); }
+    else { plausible = !(p.muerte && p.muerte < 1860) && !(p.nac && !p.muerte && p.nac < 1790); }
+  } else if (p.gen != null){
+    var e = nacEstimado(p);
+    plausible = anio ? (anio >= e - 10 && anio <= e + 95) : e >= 1790;
+  }
+  if (plausible === false) return 3;
+  if (plausible === null) return 2;
+  return deLinea ? 0 : 1;
+}
+function buscar(texto, foto, excluir){
+  var t = normal(texto), partes = t ? t.split(/\s+/) : [];
+  var res = PERSONAS.filter(function(p){
+    if (!t) return excluir.indexOf(p.id) === -1;
+    return partes.every(function(x){ return p.busca.indexOf(x) !== -1; });
+  }).map(function(p){ return {p:p, g:grupo(p, foto)}; });
+  if (!t) res = res.filter(function(r){ return r.g <= 1; });
   res.sort(function(a,b){
-    var ai = a.busca.indexOf(partes[0]) === 0 ? 0 : 1, bi = b.busca.indexOf(partes[0]) === 0 ? 0 : 1;
-    return ai - bi || a.nombre.localeCompare(b.nombre, "es");
+    if (a.g !== b.g) return a.g - b.g;
+    if (t){ var ai = a.p.busca.indexOf(partes[0]) === 0 ? 0 : 1, bi = b.p.busca.indexOf(partes[0]) === 0 ? 0 : 1; if (ai !== bi) return ai - bi; }
+    if (!t && foto && foto.anio){ var da = Math.abs((nacEstimado(a.p)||1900) + 35 - foto.anio), db = Math.abs((nacEstimado(b.p)||1900) + 35 - foto.anio); if (da !== db) return da - db; }
+    return a.p.nombre.localeCompare(b.p.nombre, "es");
   });
-  return res.slice(0, 8);
+  return res.slice(0, t ? 12 : 10);
 }
 
 // Campo con autocompletado. alElegir recibe {persona} o {nuevo:"texto"} o null.
-function crearBuscador(contenedor, idInput, valorInicial, alElegir, permitirDesconocido){
-  contenedor.innerHTML = "";
+function crearBuscador(cont, idInput, valor, alElegir, op){
+  op = op || {};
+  cont.innerHTML = "";
   var input = document.createElement("input");
   input.type = "text"; input.id = idInput; input.autocomplete = "off";
-  input.placeholder = "Empieza a escribir un nombre o apodo";
-  input.value = valorInicial || "";
+  input.placeholder = op.sinFoto ? "Escribe tu nombre o apodo" : "Escribe un nombre o apodo";
+  input.value = valor || "";
   var lista = document.createElement("ul"); lista.className = "opciones"; lista.hidden = true;
-  contenedor.appendChild(input); contenedor.appendChild(lista);
+  cont.appendChild(input); cont.appendChild(lista);
   function cerrar(){ lista.hidden = true; lista.innerHTML = ""; }
+  function titulo(t){ var li = document.createElement("li"); li.className = "grupo"; li.textContent = t; lista.appendChild(li); }
   function opcion(html, accion){
     var li = document.createElement("li"), b = document.createElement("button");
     b.type = "button"; b.innerHTML = html;
@@ -263,26 +314,26 @@ function crearBuscador(contenedor, idInput, valorInicial, alElegir, permitirDesc
     b.addEventListener("click", function(){ accion(); cerrar(); });
     li.appendChild(b); lista.appendChild(li);
   }
-  function esc(s){ return s.replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]; }); }
   function pintar(){
     lista.innerHTML = "";
     var t = input.value.trim();
-    if (!t){ cerrar(); return; }
-    buscar(t).forEach(function(p){
-      opcion("<span>"+esc(p.nombre)+"</span>"+(p.alias?"<small>También: "+esc(p.alias)+"</small>":""), function(){
-        input.value = p.nombre; alElegir({persona:p});
+    if (!t && op.sinFoto){ cerrar(); return; }
+    var res = buscar(t, op.foto, op.excluir || []), ultimo = -1;
+    if (!t && res.length) titulo("Sugerencias para esta foto");
+    res.forEach(function(r){
+      if (t && r.g === 3 && ultimo !== 3) titulo("Poco probable por las fechas");
+      ultimo = r.g;
+      var extra = r.p.alias ? "También: " + esc(r.p.alias) : "";
+      opcion("<span>"+esc(r.p.nombre)+"</span>"+(extra?"<small>"+extra+"</small>":""), function(){
+        input.value = r.p.nombre; alElegir({persona:r.p});
       });
     });
-    opcion("<span class=\"nuevo\">No está en la lista: usar «"+esc(t)+"»</span><small>Se agrega como nombre nuevo para revisar</small>", function(){
-      alElegir({nuevo:t});
-    });
-    if (permitirDesconocido){
-      opcion("<span>No sé quién es</span>", function(){ input.value = ""; alElegir(null); });
-    }
-    lista.hidden = false;
+    if (t) opcion("<span class=\"nuevo\">No está en la lista: usar «"+esc(t)+"»</span><small>Se agrega como nombre nuevo para revisar</small>", function(){ alElegir({nuevo:t}); });
+    if (op.desconocido) opcion("<span>No sé quién es</span>", function(){ input.value = ""; alElegir(null); });
+    lista.hidden = !lista.children.length;
   }
   input.addEventListener("input", pintar);
-  input.addEventListener("focus", function(){ if (input.value.trim()) pintar(); });
+  input.addEventListener("focus", pintar);
   input.addEventListener("blur", function(){ setTimeout(cerrar, 150); });
   input.addEventListener("keydown", function(e){
     if (e.key === "Enter"){ e.preventDefault(); var b = lista.querySelector("button"); if (b) b.click(); }
@@ -291,138 +342,150 @@ function crearBuscador(contenedor, idInput, valorInicial, alElegir, permitirDesc
   return input;
 }
 
-// ---------- Código ----------
-var codigo = (location.hash || "").replace(/^#/, "") || lee("galeria-codigo");
-if (codigo) guarda("galeria-codigo", codigo);
-$("codigo").value = codigo;
-if (!codigo){ $("paso-codigo").hidden = false; }
-$("codigo").addEventListener("input", function(){ codigo = this.value.trim(); guarda("galeria-codigo", codigo); });
+// ---------- Galería ----------
+var cola = [], actual = null, imagen = null, caras = [], activa = -1, url = null;
 
-// ---------- Quién eres ----------
-var yo = null;
-try{ yo = JSON.parse(lee("galeria-yo") || "null"); }catch(e){ yo = null; }
-crearBuscador($("buscador-yo"), "yo", yo ? yo.nombre : "", function(r){
-  if (!r) return;
-  yo = r.persona ? {nombre:r.persona.nombre, id:r.persona.id} : {nombre:r.nuevo, id:""};
-  guarda("galeria-yo", JSON.stringify(yo));
-}, false);
-$("yo").addEventListener("change", function(){
-  var t = this.value.trim();
-  if (t && (!yo || yo.nombre !== t)){ yo = {nombre:t, id:""}; guarda("galeria-yo", JSON.stringify(yo)); }
-});
-
-// ---------- Modelos de caras ----------
-var modelos = null;
-function cargarModelos(){
-  if (!modelos){
-    modelos = (window.faceapi ? faceapi.nets.ssdMobilenetv1.loadFromUri(MODELOS) : Promise.reject(new Error("sin librería")));
-  }
-  return modelos;
+function pendientesDe(f){
+  if (mias[f.id]) return 0;
+  return f.pendientes == null ? 1 : f.pendientes;
 }
-cargarModelos().catch(function(){});
-
-// ---------- Foto ----------
-var imagen = null;   // HTMLImageElement con la foto original
-var caras = [];      // {x,y,w,h en 0..1, persona, nuevo}
-var activa = -1;
-
-$("archivo").addEventListener("change", function(){
-  var f = this.files && this.files[0]; if (!f) return;
-  var url = URL.createObjectURL(f);
-  var img = new Image();
-  img.onload = function(){ imagen = img; $("foto").src = url; mostrarFoto(); detectar(); };
-  img.onerror = function(){ estado("estado-caras", "No pude abrir esa foto. Prueba con otra.", "error"); };
-  img.src = url;
-});
-$("cambiar-foto").addEventListener("click", function(){ $("archivo").value = ""; $("archivo").click(); });
-
-function mostrarFoto(){
-  caras = []; activa = -1;
-  $("area-foto").hidden = false; $("botones-foto").hidden = false;
-  $("zona-subir").hidden = true;
-  $("paso-caras").hidden = false; $("paso-datos").hidden = false;
-  pintarCaras();
+function ordenarCola(){
+  cola = FOTOS.filter(function(f){ return !hechas[f.id]; });
+  cola.sort(function(a,b){ return pendientesDe(b) - pendientesDe(a); });
+}
+function pintarAvance(){
+  var total = FOTOS.length, vistas = FOTOS.filter(function(f){ return hechas[f.id]; }).length;
+  var faltan = FOTOS.reduce(function(s,f){ return s + (hechas[f.id] ? 0 : (f.pendientes || 0)); }, 0);
+  $("texto-avance").textContent = "Llevas " + vistas + " de " + total + " fotos" + (faltan ? " · faltan " + faltan + " caras por identificar en la colección" : "");
+  $("barra").style.width = (total ? Math.round(vistas*100/total) : 0) + "%";
 }
 
-function estado(id, texto, tipo, girando){
-  var el = $(id); el.hidden = !texto; el.className = "estado" + (tipo ? " "+tipo : "");
-  el.innerHTML = (girando ? "<span class=\"girando\"></span>" : "") + "<span></span>";
-  el.lastChild.textContent = texto || "";
+function iniciar(){
+  pintarYo();
+  ordenarCola();
+  var pedida = fotoPedida && FOTOS.filter(function(f){ return f.id === fotoPedida || f.fid === fotoPedida; })[0];
+  if (pedida) abrir(pedida);
+  else siguiente();
 }
 
-function detectar(){
-  estado("estado-caras", "Buscando caras en la foto…", "", true);
-  cargarModelos().then(function(){
-    var esc = Math.min(1, LADO_DETECCION / Math.max(imagen.naturalWidth, imagen.naturalHeight));
-    var c = document.createElement("canvas");
-    c.width = Math.round(imagen.naturalWidth*esc); c.height = Math.round(imagen.naturalHeight*esc);
-    c.getContext("2d").drawImage(imagen, 0, 0, c.width, c.height);
-    return faceapi.detectAllFaces(c, new faceapi.SsdMobilenetv1Options({minConfidence:0.35, maxResults:60})).then(function(r){
-      return {r:r, w:c.width, h:c.height};
-    });
-  }).then(function(o){
-    o.r.forEach(function(d){
-      var b = d.box, m = 0.15;
-      caras.push({x:Math.max(0,(b.x-b.width*m)/o.w), y:Math.max(0,(b.y-b.height*m)/o.h),
-                  w:Math.min(1,b.width*(1+2*m)/o.w), h:Math.min(1,b.height*(1+2*m)/o.h), persona:null, nuevo:""});
-    });
-    ordenar(); pintarCaras();
-    if (caras.length){
-      estado("estado-caras", "Encontré " + caras.length + (caras.length===1?" cara.":" caras.") + " Si falta alguien, usa «Marcar una cara que falta».", "");
-    } else {
-      estado("estado-caras", "No encontré caras solo. Usa «Marcar una cara que falta» y toca cada cara en la foto.", "");
-    }
-  }).catch(function(){
-    estado("estado-caras", "No pude buscar caras automáticamente. Usa «Marcar una cara que falta» y toca cada cara en la foto.", "error");
+function siguiente(){
+  ordenarCola();
+  if (actual) cola = cola.filter(function(f){ return f.id !== actual.id; }).concat(cola.filter(function(f){ return f.id === actual.id; }));
+  if (!cola.length){ $("galeria").hidden = true; $("terminado").hidden = false; return; }
+  abrir(cola[0]);
+}
+$("repasar").addEventListener("click", function(){ hechas = {}; guarda("galeria2-hechas", "{}"); $("terminado").hidden = true; actual = null; siguiente(); });
+
+function abrir(f){
+  actual = f; caras = []; activa = -1; imagen = null;
+  $("galeria").hidden = false; $("terminado").hidden = true;
+  ["cuando","donde","ocasion","historia"].forEach(function(id){ $(id).value = ""; });
+  $("mas-datos").open = false;
+  estado("estado-envio", "");
+  pintarAvance(); pintarDatos(); pintarCaras();
+  estado("estado-foto", "Abriendo la foto…", "", true);
+  $("foto").removeAttribute("src");
+  fetch("galeria/f/" + f.fid + ".bin").then(function(r){ if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function(buf){
+    var u = new Uint8Array(buf);
+    return descifra(f.llave, u.slice(0,12), u.slice(12));
+  }).then(function(jpg){
+    if (actual !== f) return;
+    if (url) URL.revokeObjectURL(url);
+    url = URL.createObjectURL(new Blob([jpg], {type:"image/jpeg"}));
+    var img = new Image();
+    img.onload = function(){
+      if (actual !== f) return;
+      imagen = img; $("foto").src = url;
+      $("foto").alt = f.titulo ? "Foto: " + f.titulo : "Foto familiar";
+      if (f.caras && f.caras.length){
+        caras = f.caras.map(function(c){ return Object.assign({}, c); });
+        aplicaMias(); estado("estado-foto", ""); pintarCaras();
+      } else detectar(f);
+    };
+    img.src = url;
+  }).catch(function(){ estado("estado-foto", "No pude abrir esta foto. Intenta con la siguiente.", "error"); });
+  pintarCompartir();
+}
+
+function aplicaMias(){
+  (mias[actual.id] || []).forEach(function(m){
+    var c = caras.filter(function(x){ return x.n === m.n; })[0];
+    if (c){ c.p = m.p; c.nombre = m.nombre; c.nuevo = m.nuevo; c.yo = 1; }
   });
 }
 
-function ordenar(){
-  caras.sort(function(a,b){ return (a.x+a.w/2) - (b.x+b.w/2); });
+function pintarDatos(){
+  var f = actual, partes = [];
+  if (f.anio || f.fecha) partes.push(f.fecha || ("c. " + f.anio));
+  if (f.lugar) partes.push(f.lugar);
+  if (f.ocasion) partes.push(f.ocasion);
+  if (modo === "MF") partes.push("Línea: " + f.linea);
+  $("datos-foto").innerHTML = partes.map(function(p){ return "<span>"+esc(p)+"</span>"; }).join("");
 }
 
-// Marcar caras a mano
+// ---------- Caras ----------
+var cargaApi = null;
+function faceapiLista(){
+  if (!cargaApi) cargaApi = new Promise(function(ok, mal){
+    var s = document.createElement("script"); s.src = MODELOS_JS; s.onload = ok; s.onerror = mal; document.head.appendChild(s);
+  }).then(function(){ return faceapi.nets.ssdMobilenetv1.loadFromUri(MODELOS); });
+  return cargaApi;
+}
+function detectar(f){
+  estado("estado-foto", "Buscando caras en la foto…", "", true);
+  faceapiLista().then(function(){
+    var c = document.createElement("canvas");
+    var e = Math.min(1, 1200 / Math.max(imagen.naturalWidth, imagen.naturalHeight));
+    c.width = Math.round(imagen.naturalWidth*e); c.height = Math.round(imagen.naturalHeight*e);
+    c.getContext("2d").drawImage(imagen, 0, 0, c.width, c.height);
+    return faceapi.detectAllFaces(c, new faceapi.SsdMobilenetv1Options({minConfidence:0.35, maxResults:60})).then(function(r){ return {r:r, w:c.width, h:c.height}; });
+  }).then(function(o){
+    if (actual !== f) return;
+    o.r.forEach(function(d){
+      var b = d.box, m = 0.15;
+      caras.push({x:+Math.max(0,(b.x-b.width*m)/o.w).toFixed(4), y:+Math.max(0,(b.y-b.height*m)/o.h).toFixed(4),
+                  w:+Math.min(1,b.width*(1+2*m)/o.w).toFixed(4), h:+Math.min(1,b.height*(1+2*m)/o.h).toFixed(4)});
+    });
+    numerar(); aplicaMias(); pintarCaras();
+    estado("estado-foto", caras.length ? "" : "No encontré caras solo. Usa «Marcar una cara que falta» y toca cada cara.", "");
+  }).catch(function(){ estado("estado-foto", "No pude buscar caras automáticamente. Usa «Marcar una cara que falta».", "error"); });
+}
+function numerar(){
+  caras.sort(function(a,b){ return (a.x+a.w/2) - (b.x+b.w/2); });
+  caras.forEach(function(c,i){ c.n = i+1; });
+}
+function nombreDe(c){ return c.nombre || (c.nuevo ? c.nuevo + " (nombre nuevo)" : ""); }
+
 var agregando = false;
 $("agregar-cara").addEventListener("click", function(){
-  agregando = !agregando;
-  document.body.classList.toggle("agregando", agregando);
+  agregando = !agregando; document.body.classList.toggle("agregando", agregando);
   this.textContent = agregando ? "Toca la cara en la foto…" : "Marcar una cara que falta";
 });
 $("lienzo").addEventListener("click", function(e){
-  if (!agregando || e.target.closest(".cara")) return;
-  var r = this.getBoundingClientRect();
-  var px = (e.clientX - r.left)/r.width, py = (e.clientY - r.top)/r.height;
+  if (!agregando || !imagen || e.target.closest(".cara")) return;
+  var r = this.getBoundingClientRect(), px = (e.clientX - r.left)/r.width, py = (e.clientY - r.top)/r.height;
   var lado = 0.12, ladoY = lado * r.width / r.height;
-  var nueva = {x:Math.max(0,px-lado/2), y:Math.max(0,py-ladoY/2), w:lado, h:ladoY, persona:null, nuevo:""};
-  caras.push(nueva); ordenar();
-  agregando = false; document.body.classList.remove("agregando");
-  $("agregar-cara").textContent = "Marcar una cara que falta";
-  activa = caras.indexOf(nueva); pintarCaras(); enfocarItem();
+  var max = caras.reduce(function(m,c){ return Math.max(m, c.n||0); }, 0);
+  var nueva = {n:max+1, x:+Math.max(0,px-lado/2).toFixed(4), y:+Math.max(0,py-ladoY/2).toFixed(4), w:lado, h:+ladoY.toFixed(4), manual:1};
+  caras.push(nueva);
+  agregando = false; document.body.classList.remove("agregando"); $("agregar-cara").textContent = "Marcar una cara que falta";
+  activa = caras.indexOf(nueva); pintarCaras(); enfocar();
 });
-
-function etiquetaDe(c){
-  if (c.persona) return c.persona.nombre;
-  if (c.nuevo) return c.nuevo + " (nombre nuevo)";
-  return "";
-}
 
 function pintarCaras(){
   var lienzo = $("lienzo");
   Array.prototype.slice.call(lienzo.querySelectorAll(".cara")).forEach(function(n){ n.remove(); });
   caras.forEach(function(c, i){
-    var b = document.createElement("button");
-    b.type = "button";
-    b.className = "cara" + (etiquetaDe(c) ? " lista" : "") + (i===activa ? " activa" : "");
-    b.style.left = (c.x*100)+"%"; b.style.top = (c.y*100)+"%";
-    b.style.width = (c.w*100)+"%"; b.style.height = (c.h*100)+"%";
-    b.setAttribute("aria-label", "Cara " + (i+1) + (etiquetaDe(c) ? ": " + etiquetaDe(c) : ", sin identificar"));
-    b.innerHTML = "<span>"+(i+1)+"</span>";
-    b.addEventListener("click", function(e){ e.stopPropagation(); activa = i; pintarCaras(); enfocarItem(); });
+    var b = document.createElement("button"); b.type = "button";
+    b.className = "cara" + (nombreDe(c) ? " lista" : "") + (i===activa ? " activa" : "");
+    b.style.left = (c.x*100)+"%"; b.style.top = (c.y*100)+"%"; b.style.width = (c.w*100)+"%"; b.style.height = (c.h*100)+"%";
+    b.setAttribute("aria-label", "Cara " + c.n + (nombreDe(c) ? ": " + nombreDe(c) : ", sin identificar"));
+    b.innerHTML = "<span>" + c.n + (nombreDe(c) ? "" : " ?") + "</span>";
+    b.addEventListener("click", function(e){ e.stopPropagation(); activa = i; pintarCaras(); enfocar(); });
     lienzo.appendChild(b);
   });
   pintarLista();
 }
-
 function miniatura(c){
   try{
     var cv = document.createElement("canvas"); cv.width = 112; cv.height = 112;
@@ -431,164 +494,114 @@ function miniatura(c){
     return cv.toDataURL("image/jpeg", .8);
   }catch(e){ return ""; }
 }
-
 function pintarLista(){
   var ol = $("lista-caras"); ol.innerHTML = "";
-  if (!caras.length){
-    var li0 = document.createElement("li"); li0.className = "ayuda";
-    li0.textContent = "Todavía no hay caras marcadas.";
-    ol.appendChild(li0); return;
-  }
+  var pend = caras.filter(function(c){ return !nombreDe(c); }).length;
   caras.forEach(function(c, i){
-    var li = document.createElement("li");
-    li.className = "item-cara" + (i===activa ? " activa" : "");
-    li.id = "item-" + i;
+    var li = document.createElement("li"); li.className = "item-cara" + (i===activa ? " activa" : ""); li.id = "item-" + i;
     var cab = document.createElement("div"); cab.className = "cabeza";
     var mini = document.createElement("div"); mini.className = "miniatura";
-    var src = miniatura(c); if (src) mini.style.backgroundImage = "url("+src+")";
+    if (imagen){ var src = miniatura(c); if (src) mini.style.backgroundImage = "url("+src+")"; }
     var txt = document.createElement("div");
-    var tit = document.createElement("div"); tit.className = "titulo"; tit.textContent = "Cara " + (i+1);
-    var val = document.createElement("div"); val.className = "valor" + (etiquetaDe(c) ? " ok" : "");
-    val.textContent = etiquetaDe(c) || "Sin identificar";
-    txt.appendChild(tit); txt.appendChild(val);
-    cab.appendChild(mini); cab.appendChild(txt); li.appendChild(cab);
+    var tit = document.createElement("div"); tit.className = "titulo"; tit.textContent = "Cara " + c.n;
+    var val = document.createElement("div");
+    val.className = "valor" + (c.yo ? " mio" : nombreDe(c) ? " ok" : "");
+    val.textContent = nombreDe(c) ? nombreDe(c) + (c.yo ? " (tú)" : c.quien ? " · según " + c.quien : "") : "¿Quién es?";
+    txt.appendChild(tit); txt.appendChild(val); cab.appendChild(mini); cab.appendChild(txt); li.appendChild(cab);
+    cab.addEventListener("click", function(){ activa = (activa === i ? -1 : i); pintarCaras(); if (activa !== -1) enfocar(); });
     if (i === activa){
-      var cont = document.createElement("div"); cont.className = "buscador";
-      li.appendChild(cont);
-      var inp = crearBuscador(cont, "cara-" + i, c.persona ? c.persona.nombre : c.nuevo, function(r){
-        c.persona = r && r.persona ? r.persona : null;
-        c.nuevo = r && r.nuevo ? r.nuevo : "";
-        var sig = caras.findIndex(function(x, j){ return j > i && !etiquetaDe(x); });
-        activa = sig; pintarCaras(); if (sig !== -1) enfocarItem();
-      }, true);
-      var quitar = document.createElement("button"); quitar.type = "button"; quitar.className = "enlace";
-      quitar.textContent = "Esto no es una cara: quitarla";
-      quitar.addEventListener("click", function(){ caras.splice(i,1); activa = -1; pintarCaras(); });
-      li.appendChild(quitar);
-      setTimeout(function(){ inp.focus({preventScroll:true}); }, 0);
-    } else {
-      li.addEventListener("click", function(){ activa = i; pintarCaras(); enfocarItem(); });
-      li.style.cursor = "pointer";
+      var yaTenia = nombreDe(c) && !c.yo;
+      if (yaTenia && !c.corrigiendo){
+        var no = document.createElement("button"); no.type = "button"; no.className = "enlace";
+        no.textContent = "No es " + c.nombre.split(" ")[0] + ": corregir";
+        no.addEventListener("click", function(){ c.corrigiendo = 1; c.antes = c.nombre || c.nuevo; pintarCaras(); });
+        li.appendChild(no);
+      } else {
+        var cont = document.createElement("div"); li.appendChild(cont);
+        var usados = caras.filter(function(x){ return x !== c && x.p; }).map(function(x){ return x.p; });
+        var inp = crearBuscador(cont, "cara-" + i, c.yo ? (c.nombre || c.nuevo || "") : "", function(r){
+          c.p = r && r.persona ? r.persona.id : ""; c.nombre = r && r.persona ? r.persona.nombre : "";
+          c.nuevo = r && r.nuevo ? r.nuevo : ""; c.yo = (c.p || c.nuevo) ? 1 : 0; c.quien = "";
+          var sig = caras.findIndex(function(x, j){ return j > i && !nombreDe(x); });
+          activa = sig; pintarCaras(); if (sig !== -1) enfocar();
+        }, {foto:actual, excluir:usados, desconocido:true});
+        if (c.manual){
+          var q = document.createElement("button"); q.type = "button"; q.className = "enlace"; q.textContent = "Quitar esta marca";
+          q.addEventListener("click", function(){ caras.splice(i,1); activa = -1; pintarCaras(); });
+          li.appendChild(q);
+        }
+        setTimeout(function(){ inp.focus({preventScroll:true}); }, 0);
+      }
     }
     ol.appendChild(li);
   });
+  if (imagen && caras.length) $("guardar").textContent = pend ? "Guardar y ver la siguiente" : "Guardar y ver la siguiente ✓";
 }
+function enfocar(){ var el = $("item-" + activa); if (el) el.scrollIntoView({block:"center", behavior:"smooth"}); }
 
-function enfocarItem(){
-  var el = $("item-" + activa);
-  if (el) el.scrollIntoView({block:"center", behavior:"smooth"});
-}
-
-// ---------- Envío ----------
-function texto(t){ t = (t||"").slice(0,1990); return [{text:{content:t}}]; }
-function nombreCorto(p){ return p.persona ? p.persona.nombre : p.nuevo; }
-function limpiaArchivo(s){ return s.replace(/[\/\\:*?"<>|#]/g, "").replace(/\s+/g, " ").trim(); }
-
-function construir(){
-  var cuando = $("cuando").value.trim(), donde = $("donde").value.trim(), ocasion = $("ocasion").value.trim();
-  var original = $("original").value.trim(), historia = $("historia").value.trim();
-  var anio = (cuando.match(/\b(1[89]\d\d|20[0-2]\d)\b/) || [])[1];
-  var conNombre = caras.filter(function(c){ return etiquetaDe(c); });
-  var nombres = conNombre.map(nombreCorto);
-  var principales = nombres.length > 3 ? nombres.slice(0,3).join(", ") + " y otros" :
-                    nombres.length > 1 ? nombres.slice(0,-1).join(", ") + " y " + nombres[nombres.length-1] :
-                    (nombres[0] || "Foto familiar");
-  var base = limpiaArchivo([anio || (cuando ? "c. " + cuando : "s.f."), principales, donde || ocasion].filter(Boolean).join(" - "));
-  if (base.length > 150) base = base.slice(0,150).trim();
-  var filename = base + ".jpg";
-
-  var quien = caras.length ? "De izquierda a derecha: " + caras.map(function(c,i){
-    return (i+1) + ". " + (c.persona ? c.persona.nombre : c.nuevo ? c.nuevo + " (no está en la base)" : "sin identificar");
-  }).join("; ") + "." : "";
-
-  var ids = [], ramas = {};
-  conNombre.forEach(function(c){
-    if (c.persona && ids.indexOf(c.persona.id) === -1){ ids.push(c.persona.id); ramas[c.persona.rama] = 1; }
+// ---------- Enlace por foto (solo vista completa) ----------
+function pintarCompartir(){
+  var box = $("botones-compartir"); box.innerHTML = "";
+  $("compartir").hidden = modo !== "MF";
+  if (modo !== "MF") return;
+  var base = location.href.split("#")[0];
+  var opciones = actual.linea === "Ambas" ? ["M","F"] : [actual.linea === "Melgarejo" ? "M" : "F"];
+  opciones.forEach(function(l){
+    var b = document.createElement("button"); b.type = "button"; b.className = "boton secundario";
+    b.textContent = "Copiar enlace para " + NOMBRE_LINEA[l];
+    b.addEventListener("click", function(){
+      var link = base + "#" + l.toLowerCase() + "=" + llaves[l] + "&foto=" + actual.fid;
+      (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function(){
+        b.textContent = "¡Copiado!"; setTimeout(function(){ b.textContent = "Copiar enlace para " + NOMBRE_LINEA[l]; }, 2000);
+      }).catch(function(){ window.prompt("Copia este enlace:", link); });
+    });
+    box.appendChild(b);
   });
-  var linea = ramas.P && ramas.M ? "Ambas" : ramas.P ? "Melgarejo" : ramas.M ? "Fuentes" : "";
+}
 
-  var nuevos = caras.filter(function(c){ return !c.persona && c.nuevo; }).map(function(c){ return c.nuevo; });
-  var sinId = caras.filter(function(c){ return !etiquetaDe(c); }).length;
-  var notas = "Aportación desde la galería.";
-  if (nuevos.length) notas += " Nombres que no están en la base (por revisar): " + nuevos.join(", ") + ".";
-  if (sinId) notas += " Caras sin identificar: " + sinId + ".";
-  if (yo && !yo.id) notas += " Quien la subió no está en la base.";
-
+// ---------- Guardar ----------
+function rt(t){ t = String(t||""); var out = []; for (var i=0; i<t.length && out.length<90; i+=1900) out.push({text:{content:t.slice(i,i+1900)}}); return out; }
+function enviar(sinConocer){
+  if (!yo){ $("paso-quien").scrollIntoView({block:"center", behavior:"smooth"}); $("yo") && $("yo").focus(); estado("estado-envio", "Primero dinos quién eres (arriba).", "error"); return; }
+  var mis = caras.filter(function(c){ return c.yo; });
+  var cuando = $("cuando").value.trim(), donde = $("donde").value.trim(), ocasion = $("ocasion").value.trim(), historia = $("historia").value.trim();
+  if (!sinConocer && !mis.length && !cuando && !donde && !ocasion && !historia){ hechas[actual.id] = true; guarda("galeria2-hechas", JSON.stringify(hechas)); siguiente(); return; }
+  var resumen = mis.map(function(c){ return "Cara " + c.n + ": " + (c.nombre || c.nuevo + " (nombre nuevo)") + (c.antes ? " — antes decía " + c.antes : ""); }).join("; ");
+  var nuevos = mis.filter(function(c){ return c.nuevo; }).map(function(c){ return c.nuevo; }).join(", ");
+  var datosCaras = caras.map(function(c){ var o = {n:c.n, x:c.x, y:c.y, w:c.w, h:c.h}; if (c.p) o.p = c.p; if (c.nombre) o.nombre = c.nombre; if (c.nuevo) o.nuevo = c.nuevo; if (c.yo) o.yo = 1; if (c.antes) o.antes = c.antes; if (c.quien && !c.yo) o.quien = c.quien; if (c.manual) o.manual = 1; return o; });
+  var lineaEnlace = modo === "MF" ? "Ambas" : NOMBRE_LINEA[modo];
   var props = {
-    "Foto": {title: texto(base)},
-    "Archivo en Drive": {rich_text: texto(filename)},
-    "Link en Drive": {url: "__DRIVE_LINK__"},
-    "Identificó": {rich_text: texto(yo ? yo.nombre : "")},
-    "Certeza": {select: {name: "Confirmada"}},
-    "Quién es quién": {rich_text: texto(quien)},
-    "Notas": {rich_text: texto(notas)},
-    "Personas": {relation: ids.map(function(id){ return {id:id}; })}
+    "Aportación": {title: rt(yo.nombre + " · " + (actual.titulo || "foto " + actual.fid.slice(0,6)))},
+    "Foto": {relation: [{id: actual.id}]},
+    "Identificó": {rich_text: rt(yo.nombre + (yo.id ? "" : " (no está en la base)"))},
+    "Línea del enlace": {select: {name: lineaEnlace}},
+    "Caras": {rich_text: rt(JSON.stringify(datosCaras))},
+    "Resumen": {rich_text: rt(resumen)},
+    "No conoce a nadie": {checkbox: !!sinConocer},
+    "Estado": {select: {name: "Nueva"}}
   };
-  if (historia) props["Descripción original"] = {rich_text: texto(historia)};
-  if (cuando) props["Fecha aproximada"] = {rich_text: texto(cuando)};
-  if (anio) props["Año"] = {number: Number(anio)};
-  if (donde) props["Lugar"] = {rich_text: texto(donde)};
-  if (ocasion) props["Ocasión"] = {rich_text: texto(ocasion)};
-  if (original) props["Tiene el original"] = {rich_text: texto(original)};
-  if (linea) props["Línea"] = {select: {name: linea}};
-  return {filename: filename, props: props, nombres: nombres, sinId: sinId};
+  if (nuevos) props["Nombres nuevos"] = {rich_text: rt(nuevos)};
+  if (cuando) props["Fecha aproximada"] = {rich_text: rt(cuando)};
+  if (donde) props["Lugar"] = {rich_text: rt(donde)};
+  if (ocasion) props["Ocasión"] = {rich_text: rt(ocasion)};
+  if (historia) props["Anécdota"] = {rich_text: rt(historia)};
+  var fd = new FormData(); fd.append("code", CODIGO); fd.append("props", JSON.stringify(props));
+  ["guardar","nadie","saltar"].forEach(function(id){ $(id).disabled = true; });
+  estado("estado-envio", "Guardando…", "", true);
+  fetch(WEBHOOK, {method:"POST", body:fd}).then(function(r){ return r.text(); }).then(function(t){
+    var ok = false; try{ ok = JSON.parse(t).ok === true; }catch(e){}
+    if (!ok) throw new Error("x");
+    hechas[actual.id] = true; guarda("galeria2-hechas", JSON.stringify(hechas));
+    if (mis.length){ mias[actual.id] = mis.map(function(c){ return {n:c.n, p:c.p, nombre:c.nombre, nuevo:c.nuevo}; }); guarda("galeria2-mias", JSON.stringify(mias)); }
+    estado("estado-envio", "¡Guardado! Gracias.", "bien");
+    setTimeout(siguiente, 700);
+  }).catch(function(){
+    estado("estado-envio", "No se pudo guardar. Revisa tu conexión e intenta otra vez.", "error");
+  }).then(function(){ ["guardar","nadie","saltar"].forEach(function(id){ $(id).disabled = false; }); });
 }
-
-function fotoBase64(){
-  var esc = Math.min(1, LADO_MAX / Math.max(imagen.naturalWidth, imagen.naturalHeight));
-  var c = document.createElement("canvas");
-  c.width = Math.round(imagen.naturalWidth*esc); c.height = Math.round(imagen.naturalHeight*esc);
-  c.getContext("2d").drawImage(imagen, 0, 0, c.width, c.height);
-  return c.toDataURL("image/jpeg", 0.9).split(",")[1];
-}
-
-var enviando = false;
-$("enviar").addEventListener("click", function(){
-  if (enviando) return;
-  if (!codigo){ $("paso-codigo").hidden = false; $("codigo").focus(); estado("estado-envio", "Falta el código de la familia (arriba).", "error"); return; }
-  var t = $("yo").value.trim();
-  if (!t){ $("yo").focus(); $("paso-quien").scrollIntoView({block:"center", behavior:"smooth"}); estado("estado-envio", "Escribe tu nombre en el paso 1 para saber quién identificó la foto.", "error"); return; }
-  if (!yo || yo.nombre !== t){ yo = {nombre:t, id:""}; }
-  if (!imagen){ estado("estado-envio", "Primero elige una foto.", "error"); return; }
-
-  var datos = construir();
-  var fd = new FormData();
-  fd.append("code", codigo);
-  fd.append("filename", datos.filename);
-  fd.append("props", JSON.stringify(datos.props));
-  fd.append("image", fotoBase64());
-
-  enviando = true; $("enviar").disabled = true;
-  estado("estado-envio", "Guardando la foto… no cierres esta página.", "", true);
-  fetch(WEBHOOK, {method:"POST", body:fd}).then(function(r){ return r.text(); }).then(function(txt){
-    var ok = false; try{ ok = JSON.parse(txt).ok === true; }catch(e){ ok = false; }
-    if (ok){ listo(datos); return; }
-    throw new Error("No se pudo guardar. Revisa que el código de la familia sea el que venía en el mensaje e intenta otra vez en un momento.");
-  }).catch(function(err){
-    var msj = err && err.message && err.message.indexOf("No se") === 0 ? err.message :
-      "No se pudo enviar. Revisa tu conexión a internet e intenta otra vez.";
-    estado("estado-envio", msj, "error");
-    $("paso-codigo").hidden = !/código/.test(msj);
-  }).then(function(){ enviando = false; $("enviar").disabled = false; });
-});
-
-function listo(datos){
-  ["paso-foto","paso-caras","paso-datos"].forEach(function(id){ $(id).hidden = true; });
-  $("paso-listo").hidden = false;
-  var n = datos.nombres.length;
-  $("resumen-listo").textContent = n ? "Identificaste a " + n + (n===1?" persona":" personas") + (datos.sinId ? " y quedaron " + datos.sinId + " sin identificar." : ".") : "Quedó guardada sin nombres; alguien más podrá ayudar a identificarla.";
-  $("paso-listo").scrollIntoView({block:"center", behavior:"smooth"});
-}
-
-$("otra").addEventListener("click", function(){
-  imagen = null; caras = []; activa = -1;
-  ["cuando","donde","ocasion","original","historia"].forEach(function(id){ $(id).value = ""; });
-  $("archivo").value = ""; $("foto").removeAttribute("src");
-  $("area-foto").hidden = true; $("botones-foto").hidden = true; $("zona-subir").hidden = false;
-  $("paso-caras").hidden = true; $("paso-datos").hidden = true; $("paso-listo").hidden = true;
-  $("paso-foto").hidden = false; estado("estado-caras", ""); estado("estado-envio", "");
-  $("paso-foto").scrollIntoView({block:"start", behavior:"smooth"});
-});
+$("guardar").addEventListener("click", function(){ enviar(false); });
+$("nadie").addEventListener("click", function(){ enviar(true); });
+$("saltar").addEventListener("click", function(){ siguiente(); });
 })();
 </script>
 </body>
