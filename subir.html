@@ -205,6 +205,10 @@ button{font:inherit; cursor:pointer}
   <p class="pie">Las fotos van directo al archivo de la familia. No se publican en ningún lado.</p>
 </main>
 
+<script>
+// Si esta persona ya abrió la galería con su enlace, la subida se hace allá (más sencilla).
+(function(){ try{ var l = JSON.parse(localStorage.getItem("galeria2-llaves") || "{}"); if (l && (l.M || l.F)) location.replace("index.html#subir=1"); }catch(e){} })();
+</script>
 <script src="personas.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api@1.7.13/dist/face-api.js"></script>
 <script>

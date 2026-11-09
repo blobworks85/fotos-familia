@@ -104,6 +104,13 @@ button{font:inherit; cursor:pointer}
 .item-cara.activa .miniatura{width:112px; height:112px}
 .cara{min-width:14px; min-height:14px}
 .eligiendo #guardar{position:static; box-shadow:none}
+.subir{position:relative; border:2px dashed var(--acento); border-radius:14px; padding:36px 16px; text-align:center;
+  background:var(--acento-suave); color:var(--acento); font-weight:700; font-size:20px; display:block; cursor:pointer}
+.subir input{position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%}
+.subir.ocupado{opacity:.5; pointer-events:none}
+.lado{display:flex; gap:8px; flex-wrap:wrap}
+.lado .boton{flex:1 1 120px; min-height:48px}
+.lado .boton[aria-pressed="true"]{background:var(--acento); color:var(--hoja)}
 </style>
 </head>
 <body>
@@ -116,7 +123,7 @@ button{font:inherit; cursor:pointer}
 
   <nav class="pestanas" aria-label="Secciones">
     <a href="#" aria-current="page" id="tab-etiquetar">Identificar caras</a>
-    <a href="subir.html#fuentes-melgarejo" id="tab-subir">Subir una foto</a>
+    <a href="#" id="tab-subir">Subir una foto</a>
   </nav>
 
   <section class="tarjeta" id="sin-llave" hidden>
@@ -131,6 +138,33 @@ button{font:inherit; cursor:pointer}
     <p class="ayuda">Escribe tu nombre y elígelo. Solo te lo pregunto una vez.</p>
     <div id="buscador-yo"></div>
     <p class="ayuda" id="yo-listo" hidden></p>
+  </section>
+
+  <section class="tarjeta" id="subir" hidden>
+    <h2>Sube una foto</h2>
+    <p class="ayuda">Elige una foto de tu celular. Enseguida te la mostramos para que nos digas quién sale.</p>
+    <div id="elegir-lado" hidden>
+      <p class="etiqueta">¿De qué lado de la familia es?</p>
+      <div class="lado">
+        <button class="boton secundario" type="button" data-lado="Melgarejo" aria-pressed="false">Melgarejo</button>
+        <button class="boton secundario" type="button" data-lado="Fuentes" aria-pressed="false">Fuentes</button>
+        <button class="boton secundario" type="button" data-lado="Ambas" aria-pressed="false">Los dos</button>
+      </div>
+    </div>
+    <label class="subir" id="zona-subir">
+      <span>Toca aquí para elegir una foto</span>
+      <input type="file" id="archivo" accept="image/*">
+    </label>
+    <p class="estado" id="estado-subida" hidden></p>
+  </section>
+
+  <section class="tarjeta" id="gracias-subida" hidden>
+    <h2>¡Gracias! Tu foto quedó guardada.</h2>
+    <p class="ayuda">Pronto aparecerá en la galería para que el resto de la familia ayude a identificar a quien falte.</p>
+    <div class="fila">
+      <button class="boton" type="button" id="otra-foto">Subir otra foto</button>
+      <button class="boton secundario" type="button" id="ver-galeria">Ver las fotos de la familia</button>
+    </div>
   </section>
 
   <section class="tarjeta" id="galeria" hidden>
@@ -207,11 +241,11 @@ if (params.get("f")) llaves.F = params.get("f");
 if (!llaves.M && !llaves.F) llaves = leeJSON("galeria2-llaves", {});
 else guarda("galeria2-llaves", JSON.stringify(llaves));
 var fotoPedida = params.get("foto") || "";
+var abrirSubida = params.has("subir");
 var modo = (llaves.M ? "M" : "") + (llaves.F ? "F" : "");   // "M", "F" o "MF" (Mike)
 
 if (!modo){ $("cargando").hidden = true; $("sin-llave").hidden = false; return; }
 $("antetitulo").textContent = modo === "MF" ? "Melgarejo · Fuentes (vista completa)" : "Familia " + NOMBRE_LINEA[modo];
-$("tab-etiquetar").addEventListener("click", function(e){ e.preventDefault(); });
 
 // ---------- Datos ----------
 var FOTOS = [], PERSONAS = [], CODIGO = "", WEBHOOK = "";
@@ -370,13 +404,15 @@ function iniciar(){
   pintarYo();
   ordenarCola();
   var pedida = fotoPedida && FOTOS.filter(function(f){ return f.id === fotoPedida || f.fid === fotoPedida; })[0];
-  if (pedida) abrir(pedida);
+  if (abrirSubida) mostrarSubida();
+  else if (pedida) abrir(pedida);
   else siguiente();
 }
 
 function siguiente(){
   ordenarCola();
   if (actual) cola = cola.filter(function(f){ return f.id !== actual.id; }).concat(cola.filter(function(f){ return f.id === actual.id; }));
+  if (actual && actual.local){ actual = null; ordenarCola(); }
   if (!cola.length){ $("galeria").hidden = true; $("terminado").hidden = false; return; }
   abrir(cola[0]);
 }
@@ -389,8 +425,18 @@ function abrir(f){
   $("mas-datos").hidden = true; $("abrir-datos").hidden = false; $("abrir-datos").setAttribute("aria-expanded","false");
   estado("estado-envio", "");
   pintarAvance(); pintarDatos(); pintarCaras();
+  document.querySelector(".avance").hidden = !!f.local;
   estado("estado-foto", "Abriendo la foto…", "", true);
   $("foto").removeAttribute("src");
+  $("saltar").hidden = !!f.local;
+  $("nadie").textContent = f.local ? "No sé quiénes son" : "No conozco a nadie aquí";
+  if (f.local){
+    imagen = f.imagen; $("foto").src = f.url; $("foto").alt = "Tu foto";
+    caras = (f.caras || []).map(function(c){ return Object.assign({}, c); });
+    estado("estado-foto", caras.length ? "Toca cada cara con ? y dinos quién es. Si no sabes, no pasa nada." :
+      "No encontré caras solo. Si quieres, usa «Marcar una cara que falta».", "");
+    pintarCaras(); pintarCompartir(); return;
+  }
   fetch("galeria/f/" + f.fid + ".bin").then(function(r){ if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function(buf){
     var u = new Uint8Array(buf);
     return descifra(f.llave, u.slice(0,12), u.slice(12));
@@ -547,7 +593,10 @@ function pintarLista(){
 function hayAlgoNuevo(){
   return caras.some(function(c){ return c.yo; }) || ["cuando","donde","ocasion","historia"].some(function(id){ return $(id).value.trim(); });
 }
-function actualizarBoton(){ $("guardar").textContent = hayAlgoNuevo() ? "Guardar y ver la siguiente" : "Siguiente foto"; }
+function actualizarBoton(){
+  var local = actual && actual.local;
+  $("guardar").textContent = hayAlgoNuevo() ? (local ? "Guardar" : "Guardar y ver la siguiente") : (local ? "Terminar" : "Siguiente foto");
+}
 ["cuando","donde","ocasion","historia"].forEach(function(id){ $(id).addEventListener("input", actualizarBoton); });
 $("abrir-datos").addEventListener("click", function(){
   $("mas-datos").hidden = false; this.hidden = true; this.setAttribute("aria-expanded","true"); $("cuando").focus();
@@ -560,8 +609,8 @@ document.addEventListener("focusout", function(){ setTimeout(function(){ if (!do
 // ---------- Enlace por foto (solo vista completa) ----------
 function pintarCompartir(){
   var box = $("botones-compartir"); box.innerHTML = "";
-  $("compartir").hidden = modo !== "MF";
-  if (modo !== "MF") return;
+  $("compartir").hidden = modo !== "MF" || !!actual.local;
+  if (modo !== "MF" || actual.local) return;
   var base = location.href.split("#")[0];
   var opciones = actual.linea === "Ambas" ? ["M","F"] : [actual.linea === "Melgarejo" ? "M" : "F"];
   opciones.forEach(function(l){
@@ -583,14 +632,17 @@ function enviar(sinConocer){
   if (!yo){ $("paso-quien").scrollIntoView({block:"center", behavior:"smooth"}); $("yo") && $("yo").focus(); estado("estado-envio", "Primero dinos quién eres (arriba).", "error"); return; }
   var mis = caras.filter(function(c){ return c.yo; });
   var cuando = $("cuando").value.trim(), donde = $("donde").value.trim(), ocasion = $("ocasion").value.trim(), historia = $("historia").value.trim();
-  if (!sinConocer && !mis.length && !cuando && !donde && !ocasion && !historia){ hechas[actual.id] = true; guarda("galeria2-hechas", JSON.stringify(hechas)); siguiente(); return; }
+  if (!sinConocer && !mis.length && !cuando && !donde && !ocasion && !historia){
+    if (actual.local){ graciasSubida(); return; }
+    hechas[actual.id] = true; guarda("galeria2-hechas", JSON.stringify(hechas)); siguiente(); return;
+  }
   var resumen = mis.map(function(c){ return "Cara " + c.n + ": " + (c.nombre || c.nuevo + " (nombre nuevo)") + (c.antes ? " — antes decía " + c.antes : ""); }).join("; ");
   var nuevos = mis.filter(function(c){ return c.nuevo; }).map(function(c){ return c.nuevo; }).join(", ");
   var datosCaras = caras.map(function(c){ var o = {n:c.n, x:c.x, y:c.y, w:c.w, h:c.h}; if (c.p) o.p = c.p; if (c.nombre) o.nombre = c.nombre; if (c.nuevo) o.nuevo = c.nuevo; if (c.yo) o.yo = 1; if (c.antes) o.antes = c.antes; if (c.quien && !c.yo) o.quien = c.quien; if (c.manual) o.manual = 1; return o; });
   var lineaEnlace = modo === "MF" ? "Ambas" : NOMBRE_LINEA[modo];
   var props = {
     "Aportación": {title: rt(yo.nombre + " · " + (actual.titulo || "foto " + actual.fid.slice(0,6)))},
-    "Foto": {relation: [{id: actual.id}]},
+    "Foto": {relation: actual.id ? [{id: actual.id}] : []},
     "Identificó": {rich_text: rt(yo.nombre + (yo.id ? "" : " (no está en la base)"))},
     "Línea del enlace": {select: {name: lineaEnlace}},
     "Caras": {rich_text: rt(JSON.stringify(datosCaras))},
@@ -612,11 +664,114 @@ function enviar(sinConocer){
     hechas[actual.id] = true; guarda("galeria2-hechas", JSON.stringify(hechas));
     if (mis.length){ mias[actual.id] = mis.map(function(c){ return {n:c.n, p:c.p, nombre:c.nombre, nuevo:c.nuevo}; }); guarda("galeria2-mias", JSON.stringify(mias)); }
     estado("estado-envio", "¡Guardado! Gracias.", "bien");
-    setTimeout(siguiente, 700);
+    setTimeout(actual.local ? graciasSubida : siguiente, 700);
   }).catch(function(){
     estado("estado-envio", "No se pudo guardar. Revisa tu conexión e intenta otra vez.", "error");
   }).then(function(){ ["guardar","nadie","saltar"].forEach(function(id){ $(id).disabled = false; }); });
 }
+// ---------- Subir una foto ----------
+// Solo se pide la foto. Se sube a la carpeta «Por ordenar» del lado de quien la sube (lo dice su enlace)
+// y enseguida se abre aquí mismo para identificar caras, igual que las demás fotos.
+var SUBIDA = "https://hook.us2.make.com/bf3qntdjnoofa9hinjypphlhf6zhq6y4";
+var ladoElegido = modo === "MF" ? "" : NOMBRE_LINEA[modo];
+function pestana(cual){
+  $("tab-etiquetar").toggleAttribute("aria-current", cual === "etiquetar");
+  $("tab-subir").toggleAttribute("aria-current", cual === "subir");
+  if (cual === "etiquetar") $("tab-etiquetar").setAttribute("aria-current", "page");
+  if (cual === "subir") $("tab-subir").setAttribute("aria-current", "page");
+}
+function mostrarSubida(){
+  pestana("subir");
+  ["galeria","terminado","gracias-subida"].forEach(function(id){ $(id).hidden = true; });
+  $("subir").hidden = false; $("elegir-lado").hidden = modo !== "MF";
+  $("archivo").value = ""; $("zona-subir").classList.remove("ocupado"); estado("estado-subida", "");
+}
+function graciasSubida(){
+  $("galeria").hidden = true; $("subir").hidden = true; $("gracias-subida").hidden = false;
+  if (actual && actual.url) URL.revokeObjectURL(actual.url);
+  actual = null; $("gracias-subida").scrollIntoView({block:"center", behavior:"smooth"});
+}
+$("tab-subir").addEventListener("click", function(e){ e.preventDefault(); mostrarSubida(); });
+$("tab-etiquetar").addEventListener("click", function(e){
+  e.preventDefault();
+  if (!$("subir").hidden || !$("gracias-subida").hidden){ $("subir").hidden = true; $("gracias-subida").hidden = true; pestana("etiquetar"); actual = null; siguiente(); }
+});
+$("otra-foto").addEventListener("click", mostrarSubida);
+$("ver-galeria").addEventListener("click", function(){ $("gracias-subida").hidden = true; pestana("etiquetar"); actual = null; siguiente(); });
+Array.prototype.forEach.call(document.querySelectorAll("[data-lado]"), function(b){
+  b.addEventListener("click", function(){
+    ladoElegido = b.getAttribute("data-lado");
+    Array.prototype.forEach.call(document.querySelectorAll("[data-lado]"), function(x){ x.setAttribute("aria-pressed", String(x === b)); });
+  });
+});
+
+function buscarCaras(img){
+  return faceapiLista().then(function(){
+    var c = document.createElement("canvas"), e = Math.min(1, 1600 / Math.max(img.naturalWidth, img.naturalHeight));
+    c.width = Math.round(img.naturalWidth*e); c.height = Math.round(img.naturalHeight*e);
+    c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+    return faceapi.detectAllFaces(c, new faceapi.SsdMobilenetv1Options({minConfidence:0.25, maxResults:60})).then(function(r){
+      var lista = r.map(function(d){ var b = d.box, m = 0.15; return {
+        x:+Math.max(0,(b.x-b.width*m)/c.width).toFixed(4), y:+Math.max(0,(b.y-b.height*m)/c.height).toFixed(4),
+        w:+Math.min(1,b.width*(1+2*m)/c.width).toFixed(4), h:+Math.min(1,b.height*(1+2*m)/c.height).toFixed(4)}; });
+      lista.sort(function(a,b){ return (a.x+a.w/2) - (b.x+b.w/2); });
+      lista.forEach(function(x,i){ x.n = i+1; });
+      return lista;
+    });
+  }).catch(function(){ return []; });
+}
+function jpgBase64(img){
+  var e = Math.min(1, 2400 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas");
+  c.width = Math.round(img.naturalWidth*e); c.height = Math.round(img.naturalHeight*e);
+  c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+  return c.toDataURL("image/jpeg", 0.9).split(",")[1];
+}
+function dos(n){ return (n < 10 ? "0" : "") + n; }
+
+$("archivo").addEventListener("change", function(){
+  var archivo = this.files && this.files[0]; if (!archivo) return;
+  if (!yo){ this.value = ""; pintarYo(); $("paso-quien").scrollIntoView({block:"center", behavior:"smooth"}); estado("estado-subida", "Primero dinos quién eres (arriba) y vuelve a elegir la foto.", "error"); return; }
+  if (!ladoElegido){ this.value = ""; estado("estado-subida", "Elige de qué lado de la familia es la foto.", "error"); return; }
+  var linea = ladoElegido, urlLocal = URL.createObjectURL(archivo), img = new Image();
+  $("zona-subir").classList.add("ocupado");
+  estado("estado-subida", "Subiendo tu foto… no cierres esta página.", "", true);
+  new Promise(function(ok, mal){ img.onload = ok; img.onerror = mal; img.src = urlLocal; }).then(function(){
+    return buscarCaras(img);
+  }).then(function(lista){
+    var d = new Date(), hoy = d.getFullYear() + "-" + dos(d.getMonth()+1) + "-" + dos(d.getDate());
+    var nombre = (yo.nombre + " - " + hoy + " " + dos(d.getHours()) + "." + dos(d.getMinutes()) + "." + dos(d.getSeconds())).replace(/[\/\\:*?"<>|#]/g, "");
+    var filename = "Subida por " + nombre + ".jpg";
+    var carpeta = linea === "Ambas" ? "05 - Fotografías familiares" : "Por ordenar " + linea;
+    var props = {
+      "Foto": {title: rt("Por identificar - subida por " + yo.nombre + " el " + hoy)},
+      "Archivo en Drive": {rich_text: rt(carpeta + "/" + filename)},
+      "Link en Drive": {url: "__DRIVE_LINK__"},
+      "Línea": {select: {name: linea}},
+      "Estado": {select: {name: "Por identificar"}},
+      "Origen": {select: {name: "Galería"}},
+      "Certeza": {select: {name: "Dudosa"}},
+      "Caras pendientes": {number: lista.length},
+      "Caras (datos)": {rich_text: rt(JSON.stringify(lista))},
+      "Notas": {rich_text: rt("Subida desde la galería por " + yo.nombre + (yo.id ? "" : " (no está en la base)") + " el " + hoy + ". Falta revisarla y publicarla en la galería.")}
+    };
+    var fd = new FormData();
+    fd.append("code", CODIGO); fd.append("linea", linea); fd.append("filename", filename);
+    fd.append("props", JSON.stringify(props)); fd.append("image", jpgBase64(img));
+    return fetch(SUBIDA, {method:"POST", body:fd}).then(function(r){ return r.text(); }).then(function(t){
+      var res = {}; try{ res = JSON.parse(t); }catch(e){}
+      if (res.ok !== true) throw new Error("x");
+      estado("estado-subida", "");
+      $("subir").hidden = true; pestana("etiquetar");
+      abrir({id: res.id || "", fid: "", local: true, url: urlLocal, imagen: img, linea: linea,
+             titulo: "foto que subió " + yo.nombre + " el " + hoy, caras: lista, pendientes: lista.length});
+      $("galeria").scrollIntoView({block:"start", behavior:"smooth"});
+    });
+  }).catch(function(){
+    URL.revokeObjectURL(urlLocal);
+    estado("estado-subida", "No se pudo subir la foto. Revisa tu conexión a internet e intenta otra vez.", "error");
+  }).then(function(){ $("zona-subir").classList.remove("ocupado"); $("archivo").value = ""; });
+});
+
 $("guardar").addEventListener("click", function(){ enviar(false); });
 $("nadie").addEventListener("click", function(){ enviar(true); });
 $("saltar").addEventListener("click", function(){ siguiente(); });
